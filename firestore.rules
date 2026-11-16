@@ -1,0 +1,77 @@
+rules_version = '2';
+// Room board — Firestore rules (name logins, roles, activity log).
+// Paste into Firebase console -> Firestore Database -> Rules, then Publish.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // a real login (name + PIN), not the old anonymous sign-in
+    function signedIn() {
+      return request.auth != null && request.auth.token.firebase.sign_in_provider == 'password';
+    }
+    function isOwner() {
+      return signedIn() && request.auth.token.email == 'owner@resortboard.local';
+    }
+    function person() {
+      return get(/databases/$(database)/documents/board/people).data.list.get(request.auth.uid, null);
+    }
+    // the owner, or a person the owner added and has not turned off
+    function isActive() {
+      return isOwner() || (signedIn()
+        && exists(/databases/$(database)/documents/board/people)
+        && person() != null && person().get('active', false) == true);
+    }
+    // owner and managers may delete / restore bookings
+    function canDelete() {
+      return isOwner() || (isActive() && person().get('role', 'staff') == 'manager');
+    }
+
+    // names for the login screen (read before signing in); only the owner changes them
+    match /board/people {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+    // the rooms
+    match /board/live {
+      allow read, create, update: if isActive();
+      allow delete: if false;
+    }
+    // statistics + income records
+    match /board/stats {
+      allow read, create, update: if isActive();
+      allow delete: if false;
+    }
+    // expenses: owner only
+    match /board/accounts {
+      allow read, write: if isOwner();
+    }
+    // the old board: read once to move it over, never written again
+    match /board/main {
+      allow read: if isActive();
+      allow write: if false;
+    }
+    // bookings: everybody can add, only owner/manager can delete (mark deleted) or restore
+    match /bookings/{id} {
+      allow read: if isActive();
+      allow create: if isActive()
+        && request.resource.data.by == request.auth.uid
+        && request.resource.data.get('deleted', false) == false;
+      allow update: if canDelete();
+      allow delete: if isOwner();
+    }
+    // activity log: everybody writes their own lines, only the owner reads, nobody changes or removes
+    match /log/{id} {
+      allow read: if isOwner();
+      allow create: if isActive() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+    // guest ID cards: staff add, only the owner opens or deletes
+    match /guestIds/{id} {
+      allow create: if isActive();
+      allow read, delete: if isOwner();
+    }
+    match /guestIdImg/{id} {
+      allow create: if isActive();
+      allow read, delete: if isOwner();
+    }
+  }
+}

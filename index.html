@@ -273,18 +273,68 @@
   .idedit{display:block;width:100%;border-radius:12px;margin:0 0 10px;touch-action:none;background:#222}
   .idtools{display:flex;gap:8px;margin:0 0 14px}
   .idtools .btn{flex:1;padding:10px 6px;font-size:.82rem;white-space:nowrap}
+  /* ---- name login ---- */
+  .lockcard .langtog{margin:0 0 14px}
+  .names{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 6px}
+  .names button{appearance:none;border:1px solid var(--line);background:#fbfcfb;border-radius:14px;padding:14px 8px;font-family:var(--disp);font-weight:700;font-size:1.05rem;color:var(--ink);cursor:pointer}
+  .names button:active{background:#eef1ef}
+  .names button.only{grid-column:1/-1}
+  .whoami{font-family:var(--disp);font-weight:700;font-size:1.15rem;margin:0 0 12px}
+  .btn.link{border:0;background:transparent;color:var(--muted);margin-top:8px;width:100%}
+  .userline{display:flex;align-items:center;gap:8px;font-size:.78rem;font-weight:600;color:var(--ink)}
+  .userline .btn{font-size:.72rem;padding:4px 10px}
+  /* ---- short time ---- */
+  .stchip{position:relative;z-index:1;margin-top:9px;background:rgba(255,255,255,.22);color:#fff;border-radius:10px;padding:6px 10px;font-size:.84rem;font-weight:700;align-self:flex-start}
+  .mini.night{color:#5b4bc4}
+  .choice{display:flex;flex-direction:column;gap:10px;margin:0 0 14px}
+  .choice button{appearance:none;border:1px solid var(--line);background:#fbfcfb;border-radius:14px;padding:16px;font-family:inherit;font-size:1.05rem;font-weight:700;color:var(--ink);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+  .choice button span{font-family:var(--disp);color:var(--muted);font-size:.95rem}
+  .choice button i{font-style:normal}
+  .choice button:active{background:#eef1ef}
+  /* ---- deleted bookings / people / log ---- */
+  .delbk{margin-top:14px}
+  .delbk summary{cursor:pointer;font-weight:600;font-size:.88rem;color:var(--muted);padding:4px 0}
+  .urow .rs{appearance:none;border:1px solid #cfdcf7;background:#e9f0fd;color:var(--arrive);border-radius:8px;cursor:pointer;font-weight:700;font-size:.78rem;padding:7px 10px;flex:none;font-family:inherit}
+  .urow.gone{opacity:.85}
+  .prow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line)}
+  .prow:last-child{border-bottom:0}
+  .prow .pn{font-weight:700;flex:1;min-width:90px}
+  .prow .pn small{display:block;font-weight:500;color:var(--muted);font-size:.74rem}
+  .prow.off .pn{color:var(--muted);text-decoration:line-through}
+  .prow select{font-family:inherit;font-size:.85rem;padding:7px;border:1px solid var(--line);border-radius:10px;background:#fbfcfb}
+  .prow .btn{font-size:.76rem;padding:7px 11px}
+  .logbar{display:flex;gap:8px;margin:0 0 10px}
+  .logbar select{flex:1;font-family:inherit;font-size:.9rem;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fbfcfb}
+  .lday{font-weight:700;font-size:.8rem;color:var(--muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.05em}
+  .lrow{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--line);font-size:.86rem;line-height:1.35}
+  .lrow .lt{font-family:var(--disp);font-weight:700;color:var(--muted);white-space:nowrap;min-width:44px}
+  .lrow .lw{font-weight:700;white-space:nowrap}
+  .lrow.del .lx{color:var(--occupied);font-weight:600}
+  .sync.wait .dot{animation:blink 1s ease-in-out infinite}
+  @keyframes blink{50%{opacity:.3}}
   @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <div class="lock show" id="lock">
   <div class="lockcard">
+    <div class="langtog" id="langTog2">
+      <button class="seg" data-lang="en">EN</button>
+      <button class="seg" data-lang="th">ไทย</button>
+    </div>
     <div class="ico">🔒</div>
-    <h2 id="lockTitle">Front Desk Access</h2>
-    <p class="sub" id="lockSub">Enter the staff passcode to open the room board.</p>
-    <input type="password" inputmode="numeric" id="pinInput" placeholder="••••" autocomplete="off" aria-label="Staff passcode">
+    <h2 id="lockTitle">Who are you?</h2>
+    <div id="loginPick">
+      <p class="sub" id="lockSub">Tap your name.</p>
+      <div class="names" id="loginNames"></div>
+    </div>
+    <div id="loginPin" hidden>
+      <p class="whoami" id="loginWho"></p>
+      <input type="password" inputmode="numeric" id="pinInput" placeholder="••••••" autocomplete="current-password" aria-label="PIN">
+      <button class="btn primary" id="unlockBtn">Sign in</button>
+      <button class="btn link" id="loginBack">← Other name</button>
+    </div>
     <p class="lockerr" id="lockErr"></p>
-    <button class="btn primary" id="unlockBtn">Unlock</button>
   </div>
 </div>
 
@@ -301,6 +351,7 @@
           <button class="seg" data-lang="th">ไทย</button>
         </div>
         <div class="sync wait" id="sync"><span class="dot"></span><span id="syncText">Connecting…</span></div>
+        <div class="userline" id="userLine" hidden><span id="userName"></span><button class="btn" id="logoutBtn">Log out</button></div>
       </div>
     </div>
     <div class="underline"></div>
@@ -310,7 +361,7 @@
     Add your Firebase keys in the <strong>FIREBASE CONFIG</strong> section of this file, then reload.
   </div>
 
-  <nav class="tabs" id="tabs">
+  <nav class="tabs" id="tabs" hidden>
     <button class="tab active" data-page="board" id="tabBoard">Room Board</button>
     <button class="tab" data-page="accounts" id="tabAccounts">Accounts</button>
   </nav>
@@ -322,7 +373,7 @@
 
   <div class="toolbar">
     <h2 id="roomsHeading">Rooms</h2>
-    <button class="btn ghost-danger" id="clearAll">Clear all</button>
+    <button class="btn ghost-danger" id="clearAll" hidden>Clear all</button>
   </div>
 
   <section class="grid" id="grid"></section>
@@ -330,6 +381,7 @@
   <section class="upcoming">
     <h2 id="upcomingHeading">Upcoming bookings</h2>
     <ul class="ulist" id="upcoming"></ul>
+    <div id="delBox"></div>
   </section>
 
   <section class="stats">
@@ -347,16 +399,6 @@
 
   <!-- ================= ACCOUNTS PAGE ================= -->
   <div id="pageAccounts" hidden>
-    <div class="acclock" id="accLock">
-      <div class="lockcard">
-        <div class="ico">🔐</div>
-        <h2 id="accLockTitle">Accounts</h2>
-        <p class="sub" id="accLockSub">Enter the accounts code. This device will remember it.</p>
-        <input type="password" id="accCode" placeholder="••••••" autocomplete="current-password" aria-label="Accounts code">
-        <p class="lockerr" id="accLockErr"></p>
-        <button class="btn primary" id="accUnlock">Unlock</button>
-      </div>
-    </div>
     <div id="accContent" hidden>
     <div class="monthnav">
       <button class="btn mnav" id="mPrev" aria-label="Previous month">‹</button>
@@ -391,6 +433,10 @@
       <div class="pricerow">
         <label for="priceInput" id="lblPrice">Price per night (฿)</label>
         <div class="pricein"><input type="text" inputmode="numeric" id="priceInput"><button class="btn" id="priceSave">Save</button></div>
+      </div>
+      <div class="pricerow">
+        <label for="shortPriceIn" id="lblShortPrice">Short time (฿)</label>
+        <div class="pricein"><input type="text" inputmode="numeric" id="shortPriceIn"><button class="btn" id="shortPriceSave">Save</button></div>
       </div>
       <div class="pricerow">
         <label id="lblBfPrices">Breakfast prices (฿)</label>
@@ -428,8 +474,33 @@
       <ul class="ulist" id="idBox"></ul>
     </section>
 
-    <div class="lockrow"><span id="accDeviceNote">Accounts are unlocked on this device.</span>
-      <button class="btn ghost-danger" id="accLockBtn">Lock this device</button></div>
+    <section class="card">
+      <h2 id="logHeading">Activity log</h2>
+      <div class="logbar"><select id="logWho"></select></div>
+      <div id="logBox"></div>
+      <button class="btn" id="logMore" style="width:100%;margin-top:10px" hidden>Show more</button>
+    </section>
+
+    <section class="card">
+      <h2 id="peopleHeading">People &amp; logins</h2>
+      <div id="peopleBox"></div>
+      <p class="snote" id="peopleNote"></p>
+      <h2 id="addPersonHeading" style="margin-top:18px">Add a person</h2>
+      <div class="formgrid">
+        <div><label for="pName" id="lblPName">Name</label><input type="text" id="pName" autocomplete="off"></div>
+        <div><label for="pRole" id="lblPRole">Role</label><select id="pRole"></select></div>
+        <div><label for="pPin" id="lblPPin">PIN (6 digits)</label><input type="text" inputmode="numeric" id="pPin" autocomplete="off" maxlength="10"></div>
+        <div class="addcol"><button class="btn primary" id="pAdd">Add</button></div>
+      </div>
+      <p class="formerr" id="pErr"></p>
+      <h2 id="myCodeHeading" style="margin-top:18px">Change my code</h2>
+      <div class="formgrid">
+        <div><label for="myOld" id="lblMyOld">Current code</label><input type="password" id="myOld" autocomplete="current-password"></div>
+        <div><label for="myNew" id="lblMyNew">New code</label><input type="password" id="myNew" autocomplete="new-password"></div>
+        <div class="full addcol"><button class="btn" id="myCodeSave">Change code</button></div>
+      </div>
+      <p class="formerr" id="myErr"></p>
+    </section>
     </div>
   </div>
 </div>
@@ -449,6 +520,18 @@
       <button class="btn" id="bcancel">Cancel</button>
       <button class="btn primary" id="bsave">Save booking</button>
     </div>
+  </div>
+</div>
+
+<div class="scrim" id="occScrim">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="occTitle">
+    <h3 id="occTitle">Set Occupied</h3>
+    <p class="sub" id="occSub"></p>
+    <div class="choice">
+      <button id="occNight"><b>🌙 <i id="occNightTxt">Night</i></b><span id="occNightP"></span></button>
+      <button id="occShort"><b>⏱ <i id="occShortTxt">Short time</i></b><span id="occShortP"></span></button>
+    </div>
+    <div class="sheet-actions"><button class="btn" id="occCancel">Cancel</button></div>
   </div>
 </div>
 
@@ -510,10 +593,13 @@
 <div id="pdfBusy"></div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, doc, onSnapshot, setDoc, updateDoc, deleteField, collection, query, where, getDocs, getDoc, writeBatch }
+  import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
+    doc, onSnapshot, setDoc, updateDoc, addDoc, deleteField, increment, runTransaction,
+    collection, query, where, orderBy, limit, getDocs, getDoc, writeBatch }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut }
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword,
+    setPersistence, inMemoryPersistence, EmailAuthProvider, reauthenticateWithCredential, updatePassword }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   /* ============================================================
@@ -528,20 +614,18 @@
     messagingSenderId: "166586972363",
     appId: "1:166586972363:web:826b93e76f94625209834e"
   };
-  /* ---- STAFF PASSCODE — change to your own ---- */
-  const PIN = "2468";
-  /* ---- ACCOUNTS LOGIN — the Firebase user that may open the Accounts page.
-     Create this user in Firebase -> Authentication -> Users with your accounts code as password. ---- */
+  /* ---- OWNER LOGIN — the Firebase user (Authentication -> Users) that owns the board.
+     Its password is the owner's code. The owner adds everybody else from Accounts -> People & logins. ---- */
   const OWNER_EMAIL = "owner@resortboard.local";
+  const OWNER_NAME = "Peter";
+  const LOGIN_DOMAIN = "resortboard.local";   // staff logins are made as u…@resortboard.local
   /* ============================================================ */
 
   const ROOM_COUNT = 10;
   const configured = !String(firebaseConfig.apiKey).startsWith("PASTE_");
-  const LOCK_KEY="resort_unlocked", LANG_KEY="resort_lang", REM_KEY="resort_reminder_date";
-  let sessionUnlocked=false;
+  const LANG_KEY="resort_lang", REM_KEY="resort_reminder_date";
   const ls = { get(k){ try{return localStorage.getItem(k);}catch(e){return null;} },
                set(k,v){ try{localStorage.setItem(k,v);}catch(e){} } };
-  const isUnlocked = () => ls.get(LOCK_KEY)==="1" || sessionUnlocked;
 
   /* ---------------- translations ---------------- */
   const STR = {
@@ -738,6 +822,81 @@
       confirmDelStay:"ลบรายรับนี้?\n\n{room} · {dates}\n{amt}\n\nจะถูกลบออกจากรายรับและสถิติการเข้าพัก",
       stayDeleted:"ลบรายรับแล้ว" }
   };
+  /* texts for logins, activity log, short time and restorable bookings */
+  Object.assign(STR.en, {
+    lockTitle:"Who are you?", lockSub:"Tap your name.", lockBtn:"Sign in", lockWrong:"Wrong PIN — try again.",
+    loginBack:"← Other name", loginOwnerOnly:"Only {owner} can sign in until the setup is finished.",
+    loginDisabled:"This login has been turned off. Ask {owner}.", loginSetup:"Login is not set up in Firebase yet.",
+    loginTooMany:"Too many tries. Wait a few minutes and try again.", loginOffline:"No connection — try again when online.",
+    loginLoading:"Loading…", logout:"Log out", confirmLogout:"Log out {name}?",
+    syncSaving:"Saving…", syncOfflineSave:"Offline — saves when connected",
+    confirmClear:"Clear all rooms?\n\nEvery room is set to Free, breakfast orders and extra beds are removed.\nBookings are kept.",
+    confirmDelBk:"Delete this booking?\n\n{room} · {dates}{guest}\n\nIt can be restored afterwards.",
+    bkDeleted:"Booking deleted — it can be restored below", bkRestored:"Booking restored",
+    delHeading:"Deleted bookings ({n})", delBy:"Deleted by {name} · {when}", restore:"Restore", bookedBy:"Booked by {name}",
+    occTitle:"Set Occupied", night:"Night", shortTime:"Short time", stTile:"⏱ Short time",
+    toNight:"🌙 Change to night", confirmToNight:"Change {room} from short time to a night stay?",
+    stNoExtras:"Breakfast and extra beds are not available for short time.",
+    lblShortPrice:"Short time (฿)", shortPriceSaved:"Short-time price saved", stIncLine:"short time",
+    stIncNote:"Short time counts once at the short-time price, however long it lasts. It is counted 15 minutes after the room is set Occupied.",
+    stStatsLine:"+ {n} short time", rpShort:"Short time", rpType:"Type", rpNightType:"Night",
+    logHeading:"Activity log", logAll:"Everyone", logMore:"Show more", logNone:"Nothing yet.",
+    logFail:"The log cannot be shown — the Firebase rules are not updated yet.",
+    peopleHeading:"People & logins", addPersonHeading:"Add a person", lblPName:"Name", lblPRole:"Role", lblPPin:"PIN (6 digits)", pAdd:"Add",
+    role_owner:"Owner", role_manager:"Manager", role_staff:"Staff",
+    peopleNote:"Manager: can delete and restore bookings and use Clear all. Staff: cannot delete anything. Only the owner sees Accounts and the activity log.",
+    pinNew:"New PIN", pOff:"Turn off", pOn:"Turn on", pOffNote:"turned off",
+    errPName:"Enter a name.", errPNameUsed:"That name is already used.", errPin:"The PIN must be 6 to 10 digits.",
+    pAdded:"{name} can now sign in", askNewPin:"New PIN for {name} (6 to 10 digits):", pinChanged:"New PIN set for {name}",
+    confirmOff:"Turn off the login for {name}?\n\nThey are signed out on every device.", pFail:"Could not save — check the connection and try again.",
+    myCodeHeading:"Change my code", lblMyOld:"Current code", lblMyNew:"New code (at least 6 characters)", myCodeSave:"Change code",
+    myWrong:"The current code is wrong.", myShort:"The new code must have at least 6 characters.", myDone:"Your code is changed.",
+    lg_in:"signed in", lg_out:"signed out", lg_occ:"{room} → Occupied (night)", lg_occS:"{room} → Occupied (short time)",
+    lg_free:"{room} → Free", lg_night:"{room}: short time changed to night",
+    lg_bk_add:"{room}: new booking {dates}{guest}", lg_bk_del:"{room}: DELETED booking {dates}{guest}", lg_bk_res:"{room}: restored booking {dates}{guest}",
+    lg_bf:"{room}: breakfast {date} → {sets}", lg_xb:"{room}: extra beds → {n}", lg_id:"{room}: ID card photo saved",
+    lg_id_del:"{room}: DELETED ID card photo", lg_clear:"CLEAR ALL rooms", lg_price:"price {what} → {v}",
+    lg_exp_add:"expense {cat} {amt}", lg_exp_del:"DELETED expense {cat} {amt}", lg_inc_del:"DELETED income {room} {amt}",
+    lg_bf_del:"DELETED breakfast {room} {date}", lg_xb_del:"DELETED extra bed {room}",
+    lg_user_add:"added login {who} ({role})", lg_user_pin:"new PIN for {who}", lg_user_off:"turned off login {who}",
+    lg_user_on:"turned on login {who}", lg_user_role:"{who} → {role}", lg_code:"changed own code", lgNone:"none" });
+  Object.assign(STR.th, {
+    lockTitle:"คุณคือใคร?", lockSub:"แตะชื่อของคุณ", lockBtn:"เข้าสู่ระบบ", lockWrong:"รหัส PIN ไม่ถูกต้อง — ลองอีกครั้ง",
+    loginBack:"← เลือกชื่ออื่น", loginOwnerOnly:"ตอนนี้เข้าสู่ระบบได้เฉพาะ {owner} จนกว่าจะตั้งค่าเสร็จ",
+    loginDisabled:"การเข้าสู่ระบบนี้ถูกปิดแล้ว กรุณาติดต่อ {owner}", loginSetup:"ยังไม่ได้ตั้งค่าการเข้าสู่ระบบใน Firebase",
+    loginTooMany:"ลองหลายครั้งเกินไป กรุณารอสักครู่แล้วลองใหม่", loginOffline:"ไม่มีการเชื่อมต่อ — ลองใหม่เมื่อออนไลน์",
+    loginLoading:"กำลังโหลด…", logout:"ออกจากระบบ", confirmLogout:"ออกจากระบบ {name}?",
+    syncSaving:"กำลังบันทึก…", syncOfflineSave:"ออฟไลน์ — จะบันทึกเมื่อเชื่อมต่อ",
+    confirmClear:"ล้างห้องทั้งหมด?\n\nทุกห้องจะถูกตั้งเป็นว่าง ลบอาหารเช้าและเตียงเสริม\nการจองจะยังอยู่",
+    confirmDelBk:"ลบการจองนี้?\n\n{room} · {dates}{guest}\n\nสามารถกู้คืนได้ภายหลัง",
+    bkDeleted:"ลบการจองแล้ว — กู้คืนได้ด้านล่าง", bkRestored:"กู้คืนการจองแล้ว",
+    delHeading:"การจองที่ถูกลบ ({n})", delBy:"ลบโดย {name} · {when}", restore:"กู้คืน", bookedBy:"จองโดย {name}",
+    occTitle:"ตั้งเป็นไม่ว่าง", night:"ค้างคืน", shortTime:"ชั่วคราว", stTile:"⏱ ชั่วคราว",
+    toNight:"🌙 เปลี่ยนเป็นค้างคืน", confirmToNight:"เปลี่ยน {room} จากชั่วคราวเป็นค้างคืน?",
+    stNoExtras:"ห้องชั่วคราวไม่มีอาหารเช้าและเตียงเสริม",
+    lblShortPrice:"ราคาชั่วคราว (฿)", shortPriceSaved:"บันทึกราคาชั่วคราวแล้ว", stIncLine:"ชั่วคราว",
+    stIncNote:"ห้องชั่วคราวคิดครั้งเดียวตามราคาชั่วคราว ไม่ว่าจะนานเท่าใด และจะถูกนับหลังจากตั้งเป็นไม่ว่าง 15 นาที",
+    stStatsLine:"+ ชั่วคราว {n} ครั้ง", rpShort:"ชั่วคราว", rpType:"ประเภท", rpNightType:"ค้างคืน",
+    logHeading:"บันทึกการใช้งาน", logAll:"ทุกคน", logMore:"แสดงเพิ่ม", logNone:"ยังไม่มีรายการ",
+    logFail:"แสดงบันทึกไม่ได้ — ยังไม่ได้อัปเดตกฎ Firebase",
+    peopleHeading:"ผู้ใช้และการเข้าสู่ระบบ", addPersonHeading:"เพิ่มผู้ใช้", lblPName:"ชื่อ", lblPRole:"บทบาท", lblPPin:"PIN (6 หลัก)", pAdd:"เพิ่ม",
+    role_owner:"เจ้าของ", role_manager:"ผู้จัดการ", role_staff:"พนักงาน",
+    peopleNote:"ผู้จัดการ: ลบและกู้คืนการจอง และใช้ล้างทั้งหมดได้ พนักงาน: ลบอะไรไม่ได้ เฉพาะเจ้าของเท่านั้นที่เห็นบัญชีและบันทึกการใช้งาน",
+    pinNew:"PIN ใหม่", pOff:"ปิด", pOn:"เปิด", pOffNote:"ปิดอยู่",
+    errPName:"กรุณาใส่ชื่อ", errPNameUsed:"ชื่อนี้มีอยู่แล้ว", errPin:"PIN ต้องเป็นตัวเลข 6 ถึง 10 หลัก",
+    pAdded:"{name} เข้าสู่ระบบได้แล้ว", askNewPin:"PIN ใหม่สำหรับ {name} (ตัวเลข 6 ถึง 10 หลัก):", pinChanged:"ตั้ง PIN ใหม่ให้ {name} แล้ว",
+    confirmOff:"ปิดการเข้าสู่ระบบของ {name}?\n\nจะออกจากระบบในทุกอุปกรณ์", pFail:"บันทึกไม่สำเร็จ — ตรวจสอบการเชื่อมต่อแล้วลองใหม่",
+    myCodeHeading:"เปลี่ยนรหัสของฉัน", lblMyOld:"รหัสปัจจุบัน", lblMyNew:"รหัสใหม่ (อย่างน้อย 6 ตัว)", myCodeSave:"เปลี่ยนรหัส",
+    myWrong:"รหัสปัจจุบันไม่ถูกต้อง", myShort:"รหัสใหม่ต้องมีอย่างน้อย 6 ตัว", myDone:"เปลี่ยนรหัสแล้ว",
+    lg_in:"เข้าสู่ระบบ", lg_out:"ออกจากระบบ", lg_occ:"{room} → ไม่ว่าง (ค้างคืน)", lg_occS:"{room} → ไม่ว่าง (ชั่วคราว)",
+    lg_free:"{room} → ว่าง", lg_night:"{room}: เปลี่ยนจากชั่วคราวเป็นค้างคืน",
+    lg_bk_add:"{room}: จองใหม่ {dates}{guest}", lg_bk_del:"{room}: ลบการจอง {dates}{guest}", lg_bk_res:"{room}: กู้คืนการจอง {dates}{guest}",
+    lg_bf:"{room}: อาหารเช้า {date} → {sets}", lg_xb:"{room}: เตียงเสริม → {n}", lg_id:"{room}: บันทึกรูปบัตรประชาชน",
+    lg_id_del:"{room}: ลบรูปบัตรประชาชน", lg_clear:"ล้างห้องทั้งหมด", lg_price:"ราคา {what} → {v}",
+    lg_exp_add:"รายจ่าย {cat} {amt}", lg_exp_del:"ลบรายจ่าย {cat} {amt}", lg_inc_del:"ลบรายรับ {room} {amt}",
+    lg_bf_del:"ลบอาหารเช้า {room} {date}", lg_xb_del:"ลบเตียงเสริม {room}",
+    lg_user_add:"เพิ่มผู้ใช้ {who} ({role})", lg_user_pin:"ตั้ง PIN ใหม่ให้ {who}", lg_user_off:"ปิดการเข้าสู่ระบบ {who}",
+    lg_user_on:"เปิดการเข้าสู่ระบบ {who}", lg_user_role:"{who} → {role}", lg_code:"เปลี่ยนรหัสของตัวเอง", lgNone:"ไม่มี" });
   let lang = (ls.get(LANG_KEY)==="th") ? "th" : "en";
   const T = k => (STR[lang][k] !== undefined ? STR[lang][k] : k);
 
@@ -749,11 +908,57 @@
     .toLocaleDateString(lang==="th"?"th-TH":"en-US",{month:"short",day:"numeric"}); };
   const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 
+  /* ================= HOW THE BOARD IS SAVED =================
+     board/live  = { rooms: { r1:{status, occSince, stayId, short, xbed, ids, bf:{<id>:{date,set,qty}}}, r2:… } }
+     bookings/{id} = { room, date, until, guest, by, byName, at, deleted?, delBy, delByName, delAt }
+     Every change writes ONLY the fields it changes (e.g. "rooms.r3.status"), never the whole board,
+     so a phone that is behind (asleep, bad signal) can never wipe out what other phones saved.
+     A deleted booking is only marked deleted:true, so it can be restored.
+     log/{id} = { at, uid, name, act, room, d } — one line per action, only the owner can read it. */
+  const RK = id => "r"+id;
   const defaultState = () => { const rooms=[]; for(let i=1;i<=ROOM_COUNT;i++) rooms.push({id:i,status:"free",bookings:[]}); return {rooms}; };
   let state = defaultState();
-  let db=null, ref=null, ready=false, firstSnap=true;
-  let prevView = {}, prevBf = {};
+  let db=null, liveRef=null, mainRef=null, peopleRef=null, ready=false, firstSnap=true;
+  let liveData=null, liveLoaded=false, bkRecs={}, bkLoaded=false, pendingLocal=false, migrating=false;
+  let unsubs=[];
+  let prevView = {}, prevBf = {}, prevBk = null;
   let syncCls="wait", syncKeyName="syncConnecting";
+  let me=null;   // {uid, name, role: owner | manager | staff}
+  const canDel = () => !!me && (me.role==="owner" || me.role==="manager");
+
+  function bookingsFor(id){ const t=todayStr();
+    return Object.entries(bkRecs).filter(([k,b])=>b && !b.deleted && +b.room===id && typeof b.date==="string" && bkUntil(b)>=t)
+      .map(([k,b])=>({id:k, date:b.date, until:b.until, guest:b.guest||"", byName:b.byName||""})); }
+  function roomFromData(id, d){
+    d = (d && typeof d==="object") ? d : {};
+    const r={id, status: d.status==="occupied" ? "occupied" : "free"};
+    if(d.occSince) r.occSince=d.occSince; if(d.stayId) r.stayId=d.stayId; if(d.short===true) r.short=true;
+    if(d.xbed && d.xbed.n>0) r.xbed=d.xbed; if(d.ids>0) r.ids=d.ids;
+    const bf = (d.bf && typeof d.bf==="object") ? d.bf : {};
+    const list = Object.entries(bf).filter(([k,b])=>b && +b.qty>0 && typeof b.date==="string")
+      .map(([k,b])=>({id:k, date:b.date, set:+b.set, qty:+b.qty})).sort((a,b)=>a.date.localeCompare(b.date)||a.set-b.set);
+    if(list.length) r.breakfast=list;
+    r.bookings=bookingsFor(id);
+    return r;
+  }
+  /* save only the named fields of one room (+ any extra field paths) */
+  const ROOM_SAVE_EMPTY = v => v===undefined || v===null || v===false || v===0;
+  function saveRoom(r, fields, extra){
+    if(!liveRef || !me) return;
+    const u={}, p="rooms."+RK(r.id)+".";
+    (fields||[]).forEach(f=>{ u[p+f] = ROOM_SAVE_EMPTY(r[f]) ? deleteField() : r[f]; });
+    Object.assign(u, extra||{});
+    if(!Object.keys(u).length) return;
+    u.updatedAt=Date.now(); u.updatedBy=me.name;
+    pendingLocal=true; setSync("wait","syncSaving");
+    updateDoc(liveRef, u).catch(e=>{ console.error(e); setSync("off","syncSaveFail"); showToast(T("saveFail")); });
+  }
+  /* one line in the activity log */
+  function logAct(act, room, d){
+    if(!db || !me) return;
+    addDoc(collection(db,"log"), {at:Date.now(), uid:me.uid, name:me.name, act, room:room||0, d:d||{}})
+      .catch(e=>console.error("log:",e));
+  }
 
   /* ---------------- occupancy statistics ----------------
      A room set to Occupied gets a start time (occSince) and a stay id.
@@ -762,17 +967,23 @@
      Stays are stored as a map keyed by stay id, so several devices writing
      the same stay at once just write the same value (no double counting). */
   const GRACE_MS = 60*60*1000;
+  /* short time: counted once at the short-time price, 15 minutes after the room is set Occupied */
+  const SHORT_GRACE_MS = 15*60*1000;
   let statsRef=null, stays={}, statsReady=false, selMonth=null;
   /* accounts: board/accounts = { settings:{price}, expenses:{ id:{date,cat,note,amount,createdAt} } } */
-  const DEFAULT_PRICE = 400;
+  const DEFAULT_PRICE = 400, DEFAULT_SHORT_PRICE = 250;
   let accRef=null, accData={settings:{},expenses:{}}, accReady=false, accUnsub=null;
-  let auth=null, isOwner=false, fsStarted=false, statsSettings={};
+  let auth=null, isOwner=false, statsSettings={};
   const nightPrice = () => { const a=+(statsSettings.price), b=+((accData.settings||{}).price);
     return a>0 ? a : b>0 ? b : DEFAULT_PRICE; };
+  const shortPrice = () => +(statsSettings.shortPrice)>0 ? +statsSettings.shortPrice : DEFAULT_SHORT_PRICE;
+  const isShort = s => !!s && s.short===true;
+  const stayPrice = s => +s.price>0 ? +s.price : (isShort(s) ? DEFAULT_SHORT_PRICE : DEFAULT_PRICE);
   const monthKey = ts => { const d=new Date(ts); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); };
   const newStayId = () => "s"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-  const inGrace = r => r.status==="occupied" && r.occSince && (Date.now()-r.occSince) < GRACE_MS;
-  const minsLeft = r => Math.max(1, Math.ceil((GRACE_MS-(Date.now()-r.occSince))/60000));
+  const graceOf = r => r.short ? SHORT_GRACE_MS : GRACE_MS;
+  const inGrace = r => r.status==="occupied" && r.occSince && (Date.now()-r.occSince) < graceOf(r);
+  const minsLeft = r => Math.max(1, Math.ceil((graceOf(r)-(Date.now()-r.occSince))/60000));
 
   /* ---------------- breakfast ----------------
      Orders live on the room (board/main: room.breakfast = [{id,date,set,qty}]) so every device — and the chef —
@@ -801,6 +1012,7 @@
     (r.breakfast||[]).forEach(b=>{ if(!b || typeof b.date!=="string" || b.date<=t) return;
       const id=bfId(r.id,b.date,b.set); if(bfRecs[id] && !bfRecs[id].deleted) writeBf(id,{deleted:true, deletedAt:Date.now()}); });
     delete r.breakfast; prevBf[r.id]=bfSig(r);
+    return {["rooms."+RK(r.id)+".bf"]: deleteField()};   // field path to save with the room
   }
 
   /* ---------------- extra bed ----------------
@@ -829,51 +1041,57 @@
     if(!statsRef) return;
     setDoc(statsRef, {stays:{[id]:data}}, {merge:true}).catch(e=>{ console.error(e); setSync("off","syncSaveFail"); });
   }
-  /* room is being set Free (or cleared): count it only if it was occupied >= 1 hour */
+  /* the statistics record of a room's current stay (night or short time) */
+  function stayRecord(r){
+    const old=stays[r.stayId]; const rec={room:r.id, start:r.occSince, month:monthKey(r.occSince)};
+    if(r.short){ rec.short=true; rec.price = (old && isShort(old) && +old.price>0) ? +old.price : shortPrice(); }
+    else { rec.short=false; rec.price = (old && !isShort(old) && +old.price>0) ? +old.price : nightPrice(); }
+    return rec;
+  }
+  /* room is being set Free (or cleared): count it only if it was occupied >= 1 hour (short time: 15 min) */
   function closeStay(r){
     const now=Date.now();
-    if(r.occSince && r.stayId && now-r.occSince >= GRACE_MS)
-      writeStay(r.stayId, {room:r.id, start:r.occSince, month:monthKey(r.occSince), end:now,
-        price:(stays[r.stayId]&&stays[r.stayId].price)||nightPrice()});
-    delete r.occSince; delete r.stayId;
+    if(r.occSince && r.stayId && now-r.occSince >= graceOf(r))
+      writeStay(r.stayId, Object.assign(stayRecord(r), {end:now}));
+    delete r.occSince; delete r.stayId; delete r.short;
   }
-  /* any occupied room past the 1-hour window that is not yet in the statistics gets added */
+  /* any occupied room past its check window that is not yet in the statistics gets added */
   function confirmStays(){
     if(!ready||!statsReady) return false; const now=Date.now(); let any=false;
     state.rooms.forEach(r=>{
-      if(r.status==="occupied" && r.occSince && r.stayId && now-r.occSince>=GRACE_MS && !stays[r.stayId]){
-        writeStay(r.stayId, {room:r.id, start:r.occSince, month:monthKey(r.occSince), price:nightPrice()}); any=true; }
+      if(r.status==="occupied" && r.occSince && r.stayId && now-r.occSince>=graceOf(r) && !stays[r.stayId]){
+        writeStay(r.stayId, stayRecord(r)); any=true; }
     });
     return any;
   }
-  /* keep room timers and statistics consistent (e.g. rooms that were already
-     occupied before this version, or a change made from an older cached copy of the app) */
+  /* keep room timers and statistics consistent. Saves only the fields of a room that it fixes. */
   function reconcile(){
-    if(!ready||!statsReady) return false; let ch=false; const now=Date.now();
+    if(!ready||!statsReady) return false; const now=Date.now();
     state.rooms.forEach(r=>{
       const open = Object.entries(stays).filter(([id,s])=>s.room===r.id && !s.end);
       if(r.status==="occupied"){
         if(!r.occSince || !r.stayId){
-          if(open.length){ const [id,s]=open.sort((a,b)=>b[1].start-a[1].start)[0]; r.occSince=s.start; r.stayId=id; }
+          if(open.length){ const [id,s]=open.sort((a,b)=>b[1].start-a[1].start)[0]; r.occSince=s.start; r.stayId=id; if(isShort(s)) r.short=true; }
           else { r.occSince=now; r.stayId=newStayId(); }
-          ch=true;
+          saveRoom(r,["occSince","stayId","short"]);
         }
         open.forEach(([id])=>{ if(id!==r.stayId) writeStay(id,{end:now}); });
+        if(r.short && (r.xbed || r.breakfast)){ closeXbed(r); saveRoom(r,["xbed"], clearRoomBf(r)); }
       } else {
-        if(r.occSince||r.stayId){ delete r.occSince; delete r.stayId; ch=true; }
+        if(r.occSince||r.stayId||r.short){ delete r.occSince; delete r.stayId; delete r.short; saveRoom(r,["occSince","stayId","short"]); }
         open.forEach(([id])=>writeStay(id,{end:now}));
       }
     });
     // extra beds: a Free room has none; an occupied room's bed has an accounts copy; no copy stays open without its room
     state.rooms.forEach(r=>{ if(!r.xbed) return;
-      if(r.status!=="occupied"){ closeXbed(r); ch=true; }
+      if(r.status!=="occupied"){ closeXbed(r); saveRoom(r,["xbed"]); }
       else if(r.xbed.id && !xbRecs[r.xbed.id]) writeXb(r.xbed.id,{room:r.id, start:r.xbed.since||now, month:monthKey(r.xbed.since||now), beds:r.xbed.n, price:xbPrice(), deleted:false}); });
     Object.entries(xbRecs).forEach(([id,x])=>{ if(x && !x.end && !x.deleted && !state.rooms.some(r=>r.xbed && r.xbed.id===id)) writeXb(id,{end:now}); });
     // breakfast orders on the board that have no accounts copy yet (e.g. a failed save) get one
     state.rooms.forEach(r=>roomBf(r).forEach(b=>{ const id=bfId(r.id,b.date,b.set);
       if(!bfRecs[id]) writeBf(id,{room:r.id, date:b.date, month:b.date.slice(0,7), set:b.set, qty:b.qty, deleted:false, price:bfPrice(b.set)}); }));
     if(confirmStays()) renderStats();
-    return ch;
+    return false;
   }
 
   function setSync(cls,key){ syncCls=cls; syncKeyName=key;
@@ -919,16 +1137,25 @@
   /* the booking of the guest staying now (arrived on/before today, leaving today or later) */
   const curBooking = r => (r.bookings||[]).filter(b=>b.date<=todayStr() && bkUntil(b)>=todayStr()).sort((a,b)=>b.date.localeCompare(a.date))[0]||null;
 
-  function purgePast(){ const t=todayStr(); let ch=false;
-    state.rooms.forEach(r=>{ const n=(r.bookings||[]).length; r.bookings=(r.bookings||[]).filter(b=>bkUntil(b)>=t);
-      if(r.bookings.length!==n) ch=true;
-      if(r.breakfast){ const m=r.breakfast.length; r.breakfast=r.breakfast.filter(b=>b && b.date>=t);   // accounts copy is kept
-        if(r.breakfast.length!==m) ch=true; } }); return ch; }
-
-  async function persist(){ render();
-    if(!ready||!ref) return;
-    try{ await setDoc(ref,{rooms:state.rooms,updatedAt:Date.now()}); setSync("ok","syncOk"); }
-    catch(e){ console.error(e); setSync("off","syncSaveFail"); } }
+  /* rebuild the rooms from board/live + the bookings, then sound / notify for changes made on other phones */
+  function rebuild(){
+    const rooms = (liveData && liveData.rooms && typeof liveData.rooms==="object") ? liveData.rooms : {};
+    state={rooms:[]};
+    for(let i=1;i<=ROOM_COUNT;i++) state.rooms.push(roomFromData(i, rooms[RK(i)]));
+    if(!liveLoaded || !bkLoaded) { render(); return; }
+    const allow = !firstSnap;
+    const changed=[];
+    state.rooms.forEach(r=>{ const vs=viewStatus(r); const prev=prevView[r.id];
+      if(allow && prev!==undefined && prev!==vs) changed.push({id:r.id,vs}); prevView[r.id]=vs; });
+    if(changed.length>2){ playFree(); showToast(T("boardUpdated")); }
+    else changed.forEach(c=>{ playSound(c.vs); notify(T("notifStatus"), T("roomWord")+" "+c.id+" → "+T(c.vs), "room"+c.id); });
+    // breakfast ordered/changed on another device -> sound + message (for the kitchen)
+    const bfCh=[];
+    state.rooms.forEach(r=>{ const sg=bfSig(r); if(allow && prevBf[r.id]!==undefined && prevBf[r.id]!==sg) bfCh.push(r.id); prevBf[r.id]=sg; });
+    if(bfCh.length){ if(!changed.length) playFree(); notify(T("bfUpdated"), bfCh.map(id=>T("roomWord")+" "+id).join(", "), "bf"); }
+    firstSnap=false; ready=true;
+    reconcile(); render();
+  }
 
   /* ---------------- render ---------------- */
   function applyStaticText(){
@@ -936,7 +1163,8 @@
     const set=(id,txt)=>{ const el=document.getElementById(id); if(el) el.textContent=txt; };
     set("eyebrow",T("eyebrow")); set("title",T("title")); set("roomsHeading",T("roomsHeading"));
     set("clearAll",T("clearAll")); set("upcomingHeading",T("upcomingHeading")); set("footer",T("footer"));
-    set("lockTitle",T("lockTitle")); set("lockSub",T("lockSub")); set("unlockBtn",T("lockBtn"));
+    set("lockTitle",T("lockTitle")); set("unlockBtn",T("lockBtn")); set("loginBack",T("loginBack"));
+    set("occTitle",T("occTitle")); set("occNightTxt",T("night")); set("occShortTxt",T("shortTime")); set("occCancel",T("cancel"));
     set("sheetTitle",T("sheetTitle")); set("labelDate",T("labelDate")); set("labelDeparture",T("labelDeparture")); set("labelGuest",T("labelGuest"));
     set("bcancel",T("cancel")); set("bsave",T("saveBooking"));
     set("xbTitle",T("xbTitle")); set("xbLbl",T("xbLbl")); set("xbNote",T("xbNote")); set("xbCancel",T("cancel")); set("xbSave",T("priceSave"));
@@ -949,7 +1177,7 @@
     if(typeof idSrc!=="undefined" && idSrc){ idToolsText();
       document.getElementById("idHint").textContent=T(idEditing?"idHintDrag":idMode==="full"?"idHintFull":"idHintAuto"); }
     const bg=document.getElementById("bguest"); if(bg) bg.placeholder=T("guestPlaceholder");
-    document.querySelectorAll("#langTog .seg").forEach(b=>b.classList.toggle("active", b.dataset.lang===lang));
+    document.querySelectorAll("#langTog .seg, #langTog2 .seg").forEach(b=>b.classList.toggle("active", b.dataset.lang===lang));
     setSync(syncCls,syncKeyName);
     accText();
   }
@@ -975,18 +1203,21 @@
       const pips=(bd?'<span class="pip bfpip"></span>':'')+(hasFuturePip(r)?'<span class="pip"></span>':'');
       const pip=pips?'<span class="pips">'+pips+'</span>':'';
       const hint=vs==="occupied"?T("tapFree"):T("tapOcc");
+      const st = r.status==="occupied" && r.short;
       const card=document.createElement("div");
       card.className="room"+(vs==="arrive"?" is-arrive":"");
       card.innerHTML=
-        '<button class="face '+vs+'" data-toggle="'+r.id+'" aria-label="'+T("roomWord")+' '+r.id+', '+label+'">'
+        '<button class="face '+vs+'" data-toggle="'+r.id+'" aria-label="'+T("roomWord")+' '+r.id+', '+label+(st?" · "+T("shortTime"):"")+'">'
         +'<div class="rline"><span class="rnum">'+r.id+'</span><span class="rname">'+T("roomWord")+' '+r.id+'</span></div>'
-        +'<div class="status">'+label+'</div>'+nextHtml+bfHtml
+        +'<div class="status">'+label+'</div>'
+        +(st ? '<div class="stchip">'+esc(T("stTile"))+'</div>' : '')+nextHtml+bfHtml
         +(r.xbed && r.xbed.n>0 ? '<div class="xbchip">🛏 '+esc((r.xbed.n===1?T("xbOne"):T("xbMany")).replace("{n}",r.xbed.n))+'</div>' : '')
         +(r.ids?'<div class="next">'+esc(r.ids===1?T("idTile"):T("idTileN").replace("{n}",r.ids))+'</div>':'')
         +'<div class="hint">'+hint+'</div></button>'+pip
         +'<div class="room-actions"><button class="mini book" data-book="'+r.id+'">'+T("bookFuture")+'</button>'
-        +'<button class="mini xb" data-xbed="'+r.id+'">'+esc(T("addXbed"))+'</button></div>'
-        +'<div class="room-actions"><button class="mini bf" data-bf="'+r.id+'">'+esc(T("addBreakfast"))+'</button>'
+        +(st ? '<button class="mini night" data-tonight="'+r.id+'">'+esc(T("toNight"))+'</button>'
+             : '<button class="mini xb" data-xbed="'+r.id+'">'+esc(T("addXbed"))+'</button>')+'</div>'
+        +'<div class="room-actions">'+(st ? '' : '<button class="mini bf" data-bf="'+r.id+'">'+esc(T("addBreakfast"))+'</button>')
         +'<button class="mini idb" data-idcard="'+r.id+'">'+esc(T("idBtn"))+'</button></div>';
       grid.appendChild(card);
     });
@@ -995,8 +1226,10 @@
       +'<div class="stat occ"><div class="n">'+occ+'</div><div class="l">'+T("occupied")+'</div></div>'
       +'<div class="stat arr"><div class="n">'+arr+'</div><div class="l">'+T("arrive")+'</div></div>';
     renderUpcoming();
+    renderDeleted();
     renderBfCard();
     renderStats();
+    document.getElementById("clearAll").hidden = !canDel();
   }
 
   /* breakfast overview for the kitchen: totals per set per day, then which room */
@@ -1026,8 +1259,9 @@
     const months=[]; const now=new Date();
     for(let i=11;i>=0;i--){ const d=new Date(now.getFullYear(), now.getMonth()-i, 1); months.push({key:monthKey(d.getTime()), d}); }
     if(!selMonth || !months.some(m=>m.key===selMonth)) selMonth=months[11].key;
-    const byMonth={}, byRoom={};
+    const byMonth={}, byRoom={}, shortN={};
     Object.values(stays).forEach(s=>{ if(!s||!s.month||s.deleted) return;
+      if(isShort(s)){ shortN[s.month]=(shortN[s.month]||0)+1; return; }   // short time is shown apart, not as a room night
       byMonth[s.month]=(byMonth[s.month]||0)+1;
       if(s.month===selMonth) byRoom[s.room]=(byRoom[s.room]||0)+1; });
     const max=Math.max(1,...months.map(m=>byMonth[m.key]||0));
@@ -1045,7 +1279,8 @@
     document.getElementById("mdetail").innerHTML=
       '<div class="mhead"><span class="mname">'+esc(sm.d.toLocaleDateString(loc,{month:"long",year:"numeric"}))+'</span>'
       +'<span class="mtotal"><span class="n">'+total+'</span><span class="l">'+T("roomsOccupied")+'</span></span></div>'
-      +(total?'<div class="rchips">'+chips+'</div>':'<div class="empty">'+T("noStats")+'</div>');
+      +(total?'<div class="rchips">'+chips+'</div>':'<div class="empty">'+T("noStats")+'</div>')
+      +(shortN[selMonth]?'<div class="snote" style="margin-top:8px;font-weight:600">⏱ '+esc(T("stStatsLine").replace("{n}",shortN[selMonth]))+'</div>':'');
     const pend=state.rooms.filter(inGrace);
     const pEl=document.getElementById("pending");
     if(pend.length){ pEl.hidden=false;
@@ -1065,29 +1300,87 @@
     if(!items.length){ ul.innerHTML='<li class="empty">'+T("noBookings")+'</li>'; return; }
     items.forEach(it=>{ const li=document.createElement("li"); li.className="urow"; const today=it.date===t, staying=it.date<t;
       li.innerHTML='<span class="udate '+(today?"today":"")+'">'+(today?T("todayWord"):staying?T("stayingWord"):fmt(it.date))+'</span>'
-        +'<div class="uinfo"><div class="r">'+T("roomWord")+' '+it.room+' · '+esc(bkRange(it))+'</div><div class="g">'+(it.guest?esc(it.guest):T("noGuest"))+'</div></div>'
-        +'<button class="x" data-del="'+it.room+':'+it.id+'" aria-label="remove">×</button>';
+        +'<div class="uinfo"><div class="r">'+T("roomWord")+' '+it.room+' · '+esc(bkRange(it))+'</div><div class="g">'+(it.guest?esc(it.guest):T("noGuest"))
+        +(it.byName?' · '+esc(T("bookedBy").replace("{name}",it.byName)):'')+'</div></div>'
+        +(canDel()?'<button class="x" data-del="'+esc(it.id)+'" aria-label="remove">×</button>':'');
       ul.appendChild(li); });
+  }
+  const whenTxt = ts => { const d=new Date(ts||0);
+    return fmt(iso(d))+" "+d.toLocaleTimeString(lang==="th"?"th-TH":"en-GB",{hour:"2-digit",minute:"2-digit"}); };
+  let delOpen=false;
+  /* deleted bookings that are not over yet: managers and the owner can restore them */
+  function renderDeleted(){
+    const box=document.getElementById("delBox"); if(!canDel()){ box.innerHTML=""; return; }
+    const t=todayStr();
+    const list=Object.entries(bkRecs).filter(([k,b])=>b && b.deleted && typeof b.date==="string" && bkUntil(b)>=t)
+      .map(([k,b])=>Object.assign({id:k},b)).sort((a,b)=>(b.delAt||0)-(a.delAt||0));
+    if(!list.length){ box.innerHTML=""; return; }
+    box.innerHTML='<details class="delbk"'+(delOpen?" open":"")+'><summary>🗑 '+esc(T("delHeading").replace("{n}",list.length))+'</summary><ul class="ulist">'
+      +list.map(b=>'<li class="urow gone"><span class="udate">'+esc(fmt(b.date))+'</span>'
+        +'<div class="uinfo"><div class="r">'+T("roomWord")+' '+(+b.room)+' · '+esc(bkRange(b))+(b.guest?' · '+esc(b.guest):'')+'</div>'
+        +'<div class="g">'+esc(T("delBy").replace("{name}",b.delByName||"?").replace("{when}",whenTxt(b.delAt)))+'</div></div>'
+        +'<button class="rs" data-restore="'+esc(b.id)+'">'+esc(T("restore"))+'</button></li>').join("")+'</ul></details>';
+  }
+  document.getElementById("delBox").addEventListener("toggle",e=>{ if(e.target.tagName==="DETAILS") delOpen=e.target.open; },true);
+  const bkLogData = b => ({date:b.date, until:bkUntil(b), guest:b.guest||""});
+  function setBookingDeleted(id, del){
+    const b=bkRecs[id]; if(!b || !db || !canDel()) return;
+    const now=Date.now();
+    const u = del ? {deleted:true, delBy:me.uid, delByName:me.name, delAt:now} : {deleted:false, resBy:me.uid, resByName:me.name, resAt:now};
+    bkRecs[id]=Object.assign({}, b, u); rebuild();
+    updateDoc(doc(db,"bookings",id), u).catch(e=>{ console.error(e); showToast(T("saveFail")); });
+    logAct(del?"bk_del":"bk_res", +b.room, bkLogData(b));
+    showToast(T(del?"bkDeleted":"bkRestored"));
   }
 
   /* ---------------- local actions (instant sound for this device) ---------------- */
   function localSound(r){ const vs=viewStatus(r); if(prevView[r.id]!==vs){ playSound(vs); prevView[r.id]=vs; } }
 
   document.addEventListener("click", e=>{
-    const t=e.target.closest("[data-book],[data-del],[data-bf],[data-idcard],[data-xbed]"); if(!t) return;
+    const t=e.target.closest("[data-book],[data-del],[data-bf],[data-idcard],[data-xbed],[data-tonight],[data-restore]"); if(!t) return;
     if(t.dataset.xbed){ openXb(+t.dataset.xbed); }
     else if(t.dataset.idcard){ openId(+t.dataset.idcard); }
     else if(t.dataset.bf){ openBf(+t.dataset.bf); }
     else if(t.dataset.book){ openSheet(+t.dataset.book); }
-    else if(t.dataset.del){ const [rid,bid]=t.dataset.del.split(":"); const r=state.rooms.find(x=>x.id===+rid);
-      r.bookings=(r.bookings||[]).filter(b=>b.id!==bid); localSound(r); persist(); }
+    else if(t.dataset.tonight){ toNight(+t.dataset.tonight); }
+    else if(t.dataset.restore){ setBookingDeleted(t.dataset.restore, false); }
+    else if(t.dataset.del){ const b=bkRecs[t.dataset.del]; if(!b || !canDel()) return;
+      if(!confirm(T("confirmDelBk").replace("{room}",T("roomWord")+" "+b.room).replace("{dates}",bkRange(b)).replace("{guest}",b.guest?" · "+b.guest:""))) return;
+      setBookingDeleted(t.dataset.del, true); }
   });
 
-  /* hold a tile to change its status (prevents accidental taps) */
-  function toggleRoom(id){ const r=state.rooms.find(x=>x.id===id); if(!r) return;
-    if(r.status==="occupied"){ closeStay(r); clearRoomBf(r); closeXbed(r); delete r.ids; r.status="free"; }
-    else { r.status="occupied"; r.occSince=Date.now(); r.stayId=newStayId(); }
-    localSound(r); persist(); }
+  /* hold a tile to change its status (prevents accidental taps). Free -> asks Night or Short time. */
+  function setFree(r){
+    const extra=clearRoomBf(r); closeStay(r); closeXbed(r); delete r.ids; r.status="free";
+    localSound(r); saveRoom(r,["status","occSince","stayId","short","xbed","ids"], extra); logAct("free", r.id); render();
+  }
+  function setOccupied(r, short){
+    r.status="occupied"; r.occSince=Date.now(); r.stayId=newStayId(); if(short) r.short=true; else delete r.short;
+    localSound(r); saveRoom(r,["status","occSince","stayId","short"]); logAct(short?"occS":"occ", r.id); render();
+  }
+  function toggleRoom(id){ const r=state.rooms.find(x=>x.id===id); if(!r || !me) return;
+    if(r.status==="occupied") setFree(r); else openOcc(id); }
+  /* a short-time guest stays the night: the same stay becomes a night stay (night price, counted per night) */
+  function toNight(id){ const r=state.rooms.find(x=>x.id===id); if(!r || r.status!=="occupied" || !r.short) return;
+    if(!confirm(T("confirmToNight").replace("{room}",T("roomWord")+" "+id))) return;
+    delete r.short;
+    if(stays[r.stayId]) writeStay(r.stayId, {short:false, price:nightPrice()});
+    saveRoom(r,["short"]); logAct("night", id); render();
+  }
+  let occRoom=null; const occScrim=document.getElementById("occScrim");
+  function openOcc(id){ occRoom=id;
+    document.getElementById("occSub").textContent=T("roomWord")+" "+id;
+    document.getElementById("occNightP").textContent=baht(nightPrice());
+    document.getElementById("occShortP").textContent=baht(shortPrice());
+    occScrim.classList.add("open"); }
+  function closeOcc(){ occScrim.classList.remove("open"); occRoom=null; }
+  function pickOcc(short){ const r=state.rooms.find(x=>x.id===occRoom); closeOcc();
+    if(r && r.status!=="occupied") setOccupied(r, short); }
+  document.getElementById("occNight").addEventListener("click",()=>pickOcc(false));
+  document.getElementById("occShort").addEventListener("click",()=>pickOcc(true));
+  document.getElementById("occCancel").addEventListener("click",closeOcc);
+  occScrim.addEventListener("click",e=>{ if(e.target===occScrim) closeOcc(); });
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&occScrim.classList.contains("open")) closeOcc(); });
   const HOLD_MS=550; let holdFace=null,holdTimer=null,holdRAF=null;
   function cancelHold(){ if(holdTimer){clearTimeout(holdTimer);holdTimer=null;} if(holdRAF){cancelAnimationFrame(holdRAF);holdRAF=null;}
     if(holdFace){ holdFace.classList.remove("holding"); holdFace.style.setProperty("--hold","0%"); holdFace=null; } }
@@ -1103,11 +1396,18 @@
   gridEl.addEventListener("pointermove", e=>{ if(holdFace && e.target.closest(".face")!==holdFace) cancelHold(); });
   gridEl.addEventListener("keydown", e=>{ const f=e.target.closest(".face"); if(!f) return;
     if(e.key==="Enter"||e.key===" "){ e.preventDefault(); toggleRoom(+f.dataset.toggle); } });
+  /* Clear all: managers and the owner only. Sets every room Free and removes breakfast / extra beds. Bookings stay. */
   document.getElementById("clearAll").addEventListener("click",()=>{
-    if(!confirm(T("confirmClear"))) return;
-    state.rooms.forEach(r=>{ if(r.status==="occupied") closeStay(r); });  // stays already past 1 h stay counted
-    state.rooms.forEach(r=>{ clearRoomBf(r); closeXbed(r); });
-    state=defaultState(); state.rooms.forEach(r=>{ prevView[r.id]="free"; prevBf[r.id]=""; }); persist();
+    if(!canDel() || !confirm(T("confirmClear"))) return;
+    const u={};
+    state.rooms.forEach(r=>{ if(r.status==="occupied") closeStay(r);   // stays already past the check window stay counted
+      Object.assign(u, clearRoomBf(r)); closeXbed(r);
+      const p="rooms."+RK(r.id)+"."; u[p+"status"]="free";
+      ["occSince","stayId","short","xbed","ids"].forEach(f=>u[p+f]=deleteField());
+      r.status="free"; delete r.ids; prevView[r.id]=viewStatus(r); prevBf[r.id]=""; });
+    if(liveRef){ u.updatedAt=Date.now(); u.updatedBy=me.name;
+      updateDoc(liveRef,u).catch(e=>{ console.error(e); showToast(T("saveFail")); }); }
+    logAct("clear"); render();
   });
 
   /* ---------------- extra bed sheet ---------------- */
@@ -1116,6 +1416,7 @@
   function openXb(id){
     const r=state.rooms.find(x=>x.id===id); if(!r) return;
     if(r.status!=="occupied"){ alert(T("xbNeedOcc")); return; }
+    if(r.short){ alert(T("stNoExtras")); return; }
     xbRoom=id; xbN=(r.xbed && r.xbed.n)||0;
     document.getElementById("xbSub").textContent=T("roomWord")+" "+id; xbQ(); xbScrim.classList.add("open");
   }
@@ -1133,7 +1434,7 @@
       if(xbN>0 && r.status==="occupied"){ const now=Date.now(), id=newXbId();
         r.xbed={n:xbN, since:now, id};
         writeXb(id,{room:r.id, start:now, month:monthKey(now), beds:xbN, price:xbPrice(), deleted:false}); }
-      showToast(T("xbSaved")); persist();
+      saveRoom(r,["xbed"]); logAct("xb", r.id, {n:xbN}); showToast(T("xbSaved")); render();
     }
     closeXb();
   });
@@ -1151,6 +1452,7 @@
       +'<button data-step="'+s+':1" aria-label="plus">+</button></div></div>').join("");
   }
   function openBf(id){
+    const rr=state.rooms.find(x=>x.id===id); if(rr && rr.status==="occupied" && rr.short){ alert(T("stNoExtras")); return; }
     bfRoom=id; document.getElementById("bfSub").textContent=T("roomWord")+" "+id;
     const d=document.getElementById("bfDate"); d.min=todayStr();
     const r=state.rooms.find(x=>x.id===id); const nd=r&&nextBfDate(r);
@@ -1172,18 +1474,20 @@
     if(date<todayStr()){ alert(T("alertPast")); return; }
     const r=state.rooms.find(x=>x.id===bfRoom); if(!r) return;
     r.breakfast=(r.breakfast||[]).filter(b=>b && b.date!==date);
+    const u={}, p="rooms."+RK(r.id)+".bf.", sets={};
     BF_SETS.forEach(s=>{
       const q=bfQty[s]||0, id=bfId(r.id,date,s), rec=bfRecs[id];
       if(q>0){
-        r.breakfast.push({id,date,set:s,qty:q});
+        r.breakfast.push({id,date,set:s,qty:q}); u[p+id]={date,set:s,qty:q}; sets[s]=q;
         if(!rec || rec.deleted || +rec.qty!==q){
-          const p = (rec && !rec.deleted && +rec.price>0) ? +rec.price : bfPrice(s);   // price is fixed when ordered
-          writeBf(id,{room:r.id, date, month:date.slice(0,7), set:s, qty:q, deleted:false, price:p});
+          const pr = (rec && !rec.deleted && +rec.price>0) ? +rec.price : bfPrice(s);   // price is fixed when ordered
+          writeBf(id,{room:r.id, date, month:date.slice(0,7), set:s, qty:q, deleted:false, price:pr});
         }
-      } else if(rec && !rec.deleted) writeBf(id,{deleted:true, deletedAt:Date.now()});
+      } else { u[p+id]=deleteField(); if(rec && !rec.deleted) writeBf(id,{deleted:true, deletedAt:Date.now()}); }
     });
     r.breakfast.sort((a,b)=>a.date.localeCompare(b.date)||a.set-b.set);
-    prevBf[r.id]=bfSig(r); closeBf(); showToast(T("bfSaved")); persist();
+    prevBf[r.id]=bfSig(r); closeBf(); showToast(T("bfSaved"));
+    saveRoom(r, [], u); logAct("bf", r.id, {date, sets}); render();
   });
 
   /* ---------------- booking sheet ---------------- */
@@ -1213,8 +1517,13 @@
     const clash=(r.bookings||[]).find(b=>b.date<until && date<bkUntil(b));
     if(clash && !confirm(T("confirmOverlap").replace("{room}",T("roomWord")+" "+r.id).replace("{dates}",bkRange(clash))
       .replace("{guest}",clash.guest?" ("+clash.guest+")":""))) return;
-    (r.bookings=r.bookings||[]).push({id:"b"+Date.now()+Math.random().toString(36).slice(2,6),date,until,guest});
-    closeSheet(); localSound(r); persist();
+    if(!db || !me) return;
+    const id="b"+Date.now()+Math.random().toString(36).slice(2,6);
+    const data={room:r.id, date, until, guest, by:me.uid, byName:me.name, at:Date.now()};
+    bkRecs[id]=data; (r.bookings=r.bookings||[]).push({id,date,until,guest,byName:me.name});
+    setDoc(doc(db,"bookings",id), data).catch(e=>{ console.error(e); showToast(T("saveFail")); });
+    logAct("bk_add", r.id, {date, until, guest});
+    closeSheet(); localSound(r); rebuild();
   });
 
   /* ================= ACCOUNTS PAGE ================= */
@@ -1241,24 +1550,28 @@
     for(let i=0;i<n;i++) out.push(monthKey(new Date(d0.getFullYear(), d0.getMonth(), d0.getDate()+i).getTime()));
     return out;
   }
+  /* short time: one charge in the month it started, no nights */
   function monthIncome(key){
-    const now=Date.now(); let nights=0, total=0; const byRoom={}, byPrice={};
+    const now=Date.now(); let nights=0, total=0, shorts=0; const byRoom={}, byPrice={}, shortByPrice={}, shortByRoom={};
     Object.values(stays).forEach(s=>{
       if(!s || !s.start || s.deleted) return;
-      const p = +s.price>0 ? +s.price : DEFAULT_PRICE;
+      const p = stayPrice(s);
+      if(isShort(s)){ if(monthKey(s.start)!==key) return;
+        shorts++; total+=p; shortByPrice[p]=(shortByPrice[p]||0)+1; shortByRoom[s.room]=(shortByRoom[s.room]||0)+1; return; }
       const k = stayNightMonths(s,now).filter(m=>m===key).length; if(!k) return;
       nights+=k; total+=k*p; byRoom[s.room]=(byRoom[s.room]||0)+k; byPrice[p]=(byPrice[p]||0)+k;
     });
-    return {nights,total,byRoom,byPrice};
+    return {nights,total,byRoom,byPrice,shorts,shortByPrice,shortByRoom};
   }
   /* the individual stays (income entries) of one month, newest first */
   function monthStays(key){
     const now=Date.now();
     return Object.entries(stays).filter(([id,s])=>s && s.start && !s.deleted).map(([id,s])=>{
-      const p = +s.price>0 ? +s.price : DEFAULT_PRICE;
+      const p = stayPrice(s);
+      if(isShort(s)) return {id, room:s.room, start:s.start, end:s.end||null, nights:0, short:true, keep:monthKey(s.start)===key, price:p, amount:p};
       const k = stayNightMonths(s,now).filter(m=>m===key).length;
-      return {id, room:s.room, start:s.start, end:s.end||null, nights:k, price:p, amount:k*p};
-    }).filter(x=>x.nights).sort((a,b)=>b.start-a.start||a.room-b.room);
+      return {id, room:s.room, start:s.start, end:s.end||null, nights:k, keep:k>0, price:p, amount:k*p};
+    }).filter(x=>x.keep).sort((a,b)=>b.start-a.start||a.room-b.room);
   }
   /* breakfast orders of one month (accounts copy, deleted ones left out), newest first */
   const monthBf = key => Object.entries(bfRecs)
@@ -1291,12 +1604,16 @@
     const set=(id,txt)=>{ const el=document.getElementById(id); if(el) el.textContent=txt; };
     ["tabBoard","tabAccounts","addExpHeading","lblExDate","lblExCat","lblExNote","lblExAmount","exAdd",
      "incomeHeading","lblPrice","priceSave","byCatHeading","expListHeading","copySalaries","incomeNote",
-     "accLockTitle","accLockSub","accDeviceNote","accLockBtn","exportHeading","exPdf","exportNote","lblBfPrices","lblXbPrice"].forEach(k=>set(k,T(k)));
-    set("incomeNote",T("incomeNote")+" "+T("bfNote")+" "+T("xbIncNote")); set("bfpSave",T("priceSave")); set("xbPriceSave",T("priceSave"));
+     "exportHeading","exPdf","exportNote","lblBfPrices","lblXbPrice","lblShortPrice",
+     "logHeading","logMore","peopleHeading","addPersonHeading","lblPName","lblPRole","lblPPin","pAdd","peopleNote",
+     "myCodeHeading","lblMyOld","lblMyNew","myCodeSave"].forEach(k=>set(k,T(k)));
+    set("incomeNote",T("incomeNote")+" "+T("bfNote")+" "+T("xbIncNote")+" "+T("stIncNote"));
+    set("bfpSave",T("priceSave")); set("xbPriceSave",T("priceSave")); set("shortPriceSave",T("priceSave"));
     BF_SETS.forEach(s=>set("lblBfp"+s,T("bfSetShort").replace("{n}",s)));
     const pb=document.getElementById("exPdf"); if(pb.disabled) pb.textContent=T("exLoading");
     const xb=document.getElementById("exXlsx"); if(!xb.disabled) xb.textContent=T("exXlsx");
-    const ub=document.getElementById("accUnlock"); if(!ub.disabled) ub.textContent=T("accUnlock");
+    const pr=document.getElementById("pRole"), prv=pr.value||"staff";
+    pr.innerHTML=["staff","manager"].map(k=>'<option value="'+k+'">'+esc(T("role_"+k))+'</option>').join(""); pr.value=prv;
     document.getElementById("exNote").placeholder=T("notePlaceholder");
     document.getElementById("exErr").textContent="";
     const sel=document.getElementById("exCat"); const cur=sel.value||"electric";
@@ -1306,7 +1623,6 @@
   function renderAccounts(){
     if(page!=="accounts") return;
     accText();
-    document.getElementById("accLock").hidden = isOwner;
     document.getElementById("accContent").hidden = !isOwner;
     if(!isOwner) return;
     document.getElementById("accMonth").textContent=monthLabel(accMonth);
@@ -1321,12 +1637,15 @@
 
     // income detail
     let ih="";
-    if(!inc.nights && !bfs.length && !xbs.length) ih='<div class="empty">'+T("noIncome")+'</div>';
+    if(!inc.nights && !inc.shorts && !bfs.length && !xbs.length) ih='<div class="empty">'+T("noIncome")+'</div>';
     else {
-      for(let i=1;i<=ROOM_COUNT;i++){ const n=inc.byRoom[i]; if(!n) continue;
-        ih+='<div class="irow"><span>'+T("roomWord")+' '+i+'</span><span class="v">'+n+' '+(n===1?T("nightWord"):T("nightsWord"))+'</span></div>'; }
+      for(let i=1;i<=ROOM_COUNT;i++){ const n=inc.byRoom[i]||0, sn=inc.shortByRoom[i]||0; if(!n && !sn) continue;
+        const parts=[]; if(n) parts.push(n+' '+(n===1?T("nightWord"):T("nightsWord"))); if(sn) parts.push('⏱ '+sn+' '+T("stIncLine"));
+        ih+='<div class="irow"><span>'+T("roomWord")+' '+i+'</span><span class="v">'+esc(parts.join(" · "))+'</span></div>'; }
       Object.keys(inc.byPrice).sort((a,b)=>a-b).forEach(p=>{ const n=inc.byPrice[p];
         ih+='<div class="irow"><span>'+n+' '+T("nightsWord")+' × '+baht(+p)+'</span><span class="v">'+baht(n*p)+'</span></div>'; });
+      Object.keys(inc.shortByPrice).sort((a,b)=>a-b).forEach(p=>{ const n=inc.shortByPrice[p];
+        ih+='<div class="irow"><span>⏱ '+n+' '+esc(T("stIncLine"))+' × '+baht(+p)+'</span><span class="v">'+baht(n*p)+'</span></div>'; });
       // breakfast, grouped by set and price
       const g={}; bfs.forEach(x=>{ const k=x.set+"|"+x.price; (g[k]=g[k]||{set:x.set,price:x.price,qty:0}).qty+=x.qty; });
       Object.values(g).sort((a,b)=>a.set-b.set||a.price-b.price).forEach(x=>{
@@ -1343,11 +1662,13 @@
     }
     document.getElementById("incomeBox").innerHTML=ih;
     const pin=document.getElementById("priceInput"); if(document.activeElement!==pin) pin.value=nightPrice();
+    const spi=document.getElementById("shortPriceIn"); if(document.activeElement!==spi) spi.value=shortPrice();
     BF_SETS.forEach(s=>{ const el=document.getElementById("bfp"+s); if(document.activeElement!==el) el.value=bfPrice(s)||""; });
     const xpi=document.getElementById("xbPriceIn"); if(document.activeElement!==xpi) xpi.value=xbPrice()||"";
     renderStayList();
     renderExportRange();
     watchIds(); renderIdList();
+    renderPeople(); watchLog(); renderLog();
 
     // by category
     const byCat={}; exps.forEach(e=>{ byCat[e.cat]=(byCat[e.cat]||0)+(+e.amount||0); });
@@ -1390,7 +1711,7 @@
     if(!(amount>0)){ err.textContent=T("errAmount"); document.getElementById("exAmount").focus(); return; }
     const id=newExpId(); const data={date,cat,note,amount,createdAt:Date.now()};
     accData.expenses=accData.expenses||{}; accData.expenses[id]=data;
-    saveAcc({expenses:{[id]:data}});
+    saveAcc({expenses:{[id]:data}}); logAct("exp_add", 0, {cat, amt:amount, date});
     document.getElementById("exNote").value=""; document.getElementById("exAmount").value="";
     if(date.slice(0,7)!==accMonth) accMonth=date.slice(0,7);
     showToast(T("expAdded")); renderAccounts();
@@ -1400,7 +1721,9 @@
   document.getElementById("expList").addEventListener("click",e=>{
     const b=e.target.closest("[data-delexp]"); if(!b) return;
     if(!confirm(T("confirmDelExp"))) return;
-    const id=b.dataset.delexp; delete accData.expenses[id]; renderAccounts();
+    const id=b.dataset.delexp; const ex=accData.expenses[id];
+    if(ex) logAct("exp_del", 0, {cat:ex.cat, amt:+ex.amount||0, date:ex.date});
+    delete accData.expenses[id]; renderAccounts();
     if(accRef) updateDoc(accRef,{["expenses."+id]:deleteField()}).catch(e=>{ console.error(e); showToast(T("saveFail")); });
   });
 
@@ -1409,6 +1732,15 @@
     if(!(p>0)){ showToast(T("errPrice")); return; }
     statsSettings=Object.assign({},statsSettings,{price:p});
     if(statsRef) setDoc(statsRef,{settings:{price:p}},{merge:true}).catch(e=>{ console.error(e); showToast(T("saveFail")); }); document.getElementById("priceInput").blur(); showToast(T("priceSaved")); renderAccounts();
+    logAct("price", 0, {what:"night", v:p});
+  });
+  document.getElementById("shortPriceSave").addEventListener("click",()=>{
+    const p=parseAmount(document.getElementById("shortPriceIn").value);
+    if(!(p>0)){ showToast(T("errPrice")); return; }
+    statsSettings=Object.assign({},statsSettings,{shortPrice:p});
+    if(statsRef) setDoc(statsRef,{settings:{shortPrice:p}},{merge:true}).catch(e=>{ console.error(e); showToast(T("saveFail")); });
+    document.getElementById("shortPriceIn").blur(); showToast(T("shortPriceSaved")); renderAccounts();
+    logAct("price", 0, {what:"short", v:p});
   });
 
   document.getElementById("bfpSave").addEventListener("click",()=>{
@@ -1419,6 +1751,7 @@
     if(statsRef) setDoc(statsRef,{settings:{bfPrice:o}},{merge:true}).catch(e=>{ console.error(e); showToast(T("saveFail")); });
     BF_SETS.forEach(s=>document.getElementById("bfp"+s).blur());
     showToast(T("bfPricesSaved")); renderAccounts();
+    logAct("price", 0, {what:"breakfast", v:BF_SETS.map(s=>o[s]).join(" / ")});
   });
 
   document.getElementById("xbPriceSave").addEventListener("click",()=>{
@@ -1427,6 +1760,7 @@
     statsSettings=Object.assign({},statsSettings,{xbedPrice:p});
     if(statsRef) setDoc(statsRef,{settings:{xbedPrice:p}},{merge:true}).catch(e=>{ console.error(e); showToast(T("saveFail")); });
     document.getElementById("xbPriceIn").blur(); showToast(T("xbPriceSaved")); renderAccounts();
+    logAct("price", 0, {what:"extra bed", v:p});
   });
 
   document.getElementById("copySalaries").addEventListener("click",()=>{
@@ -1453,7 +1787,7 @@
       +'<p class="snote">'+esc(T("stayHint"))+'</p><ul class="ulist">'
       +list.map(x=>'<li class="urow"><span class="edate">'+fmtTs(x.start)+'</span>'
         +'<div class="uinfo"><div class="r">'+T("roomWord")+' '+x.room+'</div>'
-        +'<div class="g">'+esc(stayDates(x))+' · '+esc(nightsTxt(x.nights))+' × '+baht(x.price)+'</div></div>'
+        +'<div class="g">'+esc(stayDates(x))+' · '+(x.short?'⏱ '+esc(T("shortTime")):esc(nightsTxt(x.nights))+' × '+baht(x.price))+'</div></div>'
         +'<span class="eamt">'+baht(x.amount)+'</span>'
         +'<button class="x" data-delstay="'+esc(x.id)+'" aria-label="delete">×</button></li>').join("")
       +'</ul></details>';
@@ -1486,8 +1820,8 @@
         .replace("{amt}",x.beds+" × "+nightsTxt(x.nights)+" × "+baht(x.price)+" = "+baht(x.amount));
       if(!confirm(msg)) return;
       const now=Date.now(); writeXb(id,{deleted:true, deletedAt:now, end:xbRecs[id].end||now});
-      const r=state.rooms.find(q=>q.xbed && q.xbed.id===id); if(r){ delete r.xbed; persist(); }   // still on the room: take it off
-      showToast(T("xbDeleted")); renderStats(); return;
+      const r=state.rooms.find(q=>q.xbed && q.xbed.id===id); if(r){ delete r.xbed; saveRoom(r,["xbed"]); }   // still on the room: take it off
+      logAct("xb_del", x.room, {amt:x.amount}); showToast(T("xbDeleted")); renderStats(); return;
     }
     const fb=e.target.closest("[data-delbf]");
     if(fb){
@@ -1498,16 +1832,17 @@
       writeBf(id,{deleted:true, deletedAt:Date.now()});
       const r=state.rooms.find(q=>q.id===x.room);   // also take it off the board if the date is still coming
       if(r && (r.breakfast||[]).some(b=>b.date===x.date && +b.set===x.set)){
-        r.breakfast=r.breakfast.filter(b=>!(b.date===x.date && +b.set===x.set)); prevBf[r.id]=bfSig(r); persist(); }
-      showToast(T("bfDeleted")); renderStats(); return;
+        r.breakfast=r.breakfast.filter(b=>!(b.date===x.date && +b.set===x.set)); prevBf[r.id]=bfSig(r);
+        saveRoom(r, [], {["rooms."+RK(r.id)+".bf."+bfId(r.id,x.date,x.set)]: deleteField()}); }
+      logAct("bf_del", x.room, {date:x.date, amt:x.amount}); showToast(T("bfDeleted")); renderStats(); return;
     }
     const b=e.target.closest("[data-delstay]"); if(!b) return;
     const id=b.dataset.delstay; const x=monthStays(accMonth).find(s=>s.id===id); if(!x) return;
     const msg=T("confirmDelStay").replace("{room}",T("roomWord")+" "+x.room).replace("{dates}",stayDates(x))
-      .replace("{amt}",nightsTxt(x.nights)+" × "+baht(x.price)+" = "+baht(x.amount));
+      .replace("{amt}",(x.short?T("shortTime"):nightsTxt(x.nights)+" × "+baht(x.price))+" = "+baht(x.amount));
     if(!confirm(msg)) return;
     writeStay(id,{deleted:true, deletedAt:Date.now()});
-    showToast(T("stayDeleted")); renderStats();
+    logAct("inc_del", x.room, {amt:x.amount}); showToast(T("stayDeleted")); renderStats();
   });
 
   /* ---------------- REPORT: PDF (print) + Excel ---------------- */
@@ -1546,16 +1881,22 @@
 
   function buildReport(kind){
     const months=rangeMonths(kind), inRange=new Set(months), now=Date.now();
-    const per={}; months.forEach(m=>per[m]={nights:0,rooms:0,bf:0,xb:0,exp:0});
+    const per={}; months.forEach(m=>per[m]={nights:0,rooms:0,bf:0,xb:0,exp:0,shorts:0});
     const stayRows=[], byRoom={};
     Object.entries(stays).forEach(([id,s])=>{
       if(!s||!s.start||s.deleted) return;
-      const p=+s.price>0?+s.price:DEFAULT_PRICE; let k=0;
+      const p=stayPrice(s); let k=0;
+      if(isShort(s)){ const m=monthKey(s.start); if(!inRange.has(m)) return;
+        per[m].shorts++; per[m].rooms+=p;
+        stayRows.push({id,room:s.room,start:s.start,end:s.end||null,nights:0,short:true,price:p,amount:p});
+        const br=byRoom[s.room]||(byRoom[s.room]={nights:0,amount:0,shorts:0}); br.shorts=(br.shorts||0)+1; br.amount+=p;
+        return; }
       stayNightMonths(s,now).forEach(m=>{ if(inRange.has(m)){ k++; per[m].nights++; per[m].rooms+=p; } });
       if(!k) return;
       stayRows.push({id,room:s.room,start:s.start,end:s.end||null,nights:k,price:p,amount:k*p});
-      const br=byRoom[s.room]||(byRoom[s.room]={nights:0,amount:0}); br.nights+=k; br.amount+=k*p;
+      const br=byRoom[s.room]||(byRoom[s.room]={nights:0,amount:0,shorts:0}); br.nights+=k; br.amount+=k*p;
     });
+    const shorts=stayRows.filter(x=>x.short).length;
     stayRows.sort((a,b)=>a.start-b.start||a.room-b.room);
     const bfRows=[], bfBySet={};
     Object.entries(bfRecs).forEach(([id,b])=>{
@@ -1589,7 +1930,7 @@
     const tag = kind==="month" ? accMonth : kind==="year" ? accMonth.slice(0,4) : "all";
     const fileName = ("Accounts "+RESORT+" "+tag).replace(/[\\/:*?"<>|]/g,"-");
     const created = new Date().toLocaleString(LOC(),{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
-    return {kind,months,per,stayRows,byRoom,bfRows,bfBySet,xbRows,xbIncome,xbNights,expRows,byCat,roomIncome,bfIncome,income,exp,nights,bfQty,
+    return {kind,months,per,stayRows,byRoom,bfRows,bfBySet,xbRows,xbIncome,xbNights,expRows,byCat,roomIncome,bfIncome,income,exp,nights,bfQty,shorts,
       result:income-exp,label,fileName,created};
   }
 
@@ -1605,6 +1946,7 @@
       +'<div><span>'+esc(T("expenses"))+'</span><b>'+baht(R.exp)+'</b></div>'
       +'<div class="'+(R.result<0?"neg":"pos")+'"><span>'+esc(T("result"))+'</span><b>'+signedBaht(R.result)+'</b></div>'
       +'<div><span>'+esc(T("rpNights"))+'</span><b>'+R.nights+'</b></div>'
+      +(R.shorts?'<div><span>'+esc(T("rpShort"))+'</span><b>'+R.shorts+'</b></div>':'')
       +'<div><span>'+esc(T("rpBreakfast"))+'</span><b>'+R.bfQty+'</b></div></div>';
     if(R.months.length>1){
       h+='<h2>'+esc(T("rpMonthly"))+'</h2><table><thead><tr>'+th("rpMonth")+th("rpNightsCol",1)+th("rpRooms",1)+th("rpBreakfast",1)
@@ -1616,10 +1958,12 @@
     const rooms=Object.keys(R.byRoom).map(Number).sort((a,b)=>a-b);
     const sets=Object.keys(R.bfBySet).map(Number).sort((a,b)=>a-b);
     const cats=Object.keys(R.byCat).sort((a,b)=>R.byCat[b]-R.byCat[a]);
+    const sh=R.shorts>0;
     const left='<h2>'+esc(T("rpByRoom"))+'</h2>'+(rooms.length
-        ? '<table><thead><tr>'+th("rpRoom")+th("rpNightsCol",1)+th("rpAmount",1)+'</tr></thead><tbody>'
-          +rooms.map(r=>'<tr><td>'+esc(T("roomWord"))+' '+r+'</td><td class="n">'+R.byRoom[r].nights+'</td>'+td(R.byRoom[r].amount)+'</tr>').join("")
-          +'<tr class="tot"><td>'+esc(T("rpTotal"))+'</td><td class="n">'+R.nights+'</td>'+td(R.roomIncome)+'</tr></tbody></table>'
+        ? '<table><thead><tr>'+th("rpRoom")+th("rpNightsCol",1)+(sh?th("rpShort",1):'')+th("rpAmount",1)+'</tr></thead><tbody>'
+          +rooms.map(r=>'<tr><td>'+esc(T("roomWord"))+' '+r+'</td><td class="n">'+R.byRoom[r].nights+'</td>'
+            +(sh?'<td class="n">'+(R.byRoom[r].shorts||0)+'</td>':'')+td(R.byRoom[r].amount)+'</tr>').join("")
+          +'<tr class="tot"><td>'+esc(T("rpTotal"))+'</td><td class="n">'+R.nights+'</td>'+(sh?'<td class="n">'+R.shorts+'</td>':'')+td(R.roomIncome)+'</tr></tbody></table>'
         : none)
       +'<h2>'+esc(T("rpBreakfast"))+'</h2>'+(sets.length
         ? '<table><thead><tr>'+th("rpSet")+th("rpQty",1)+th("rpAmount",1)+'</tr></thead><tbody>'
@@ -1640,7 +1984,7 @@
     h+='<h2>'+esc(T("rpStays"))+'</h2>'+(R.stayRows.length
       ? '<table><thead><tr>'+th("rpCheckIn")+th("rpCheckOut")+th("rpRoom")+th("rpNightsCol",1)+th("rpPrice",1)+th("rpAmount",1)+'</tr></thead><tbody>'
         +R.stayRows.map(x=>'<tr><td>'+esc(fullDate(new Date(x.start)))+'</td><td>'+esc(x.end?fullDate(new Date(x.end)):T("stillOcc"))+'</td><td>'
-          +esc(T("roomWord"))+' '+x.room+'</td><td class="n">'+x.nights+'</td>'+td(x.price)+td(x.amount)+'</tr>').join("")
+          +esc(T("roomWord"))+' '+x.room+'</td><td class="n">'+(x.short?'⏱ '+esc(T("rpShort")):x.nights)+'</td>'+td(x.price)+td(x.amount)+'</tr>').join("")
         +'<tr class="tot"><td colspan="3">'+esc(T("rpTotal"))+'</td><td class="n">'+R.nights+'</td><td></td>'+td(R.roomIncome)+'</tr></tbody></table>'
       : none);
     if(R.stayRows.length) h+='<div class="rpnote">'+esc(T("rpNightsNote"))+'</div>';
@@ -1797,6 +2141,7 @@
     s.push([T("rpNights"), R.nights]);                   // 11
     s.push([T("rpBreakfast")+" ("+T("rpQty")+")", R.bfQty]); // 12
     s.push([T("rpXbed")+" ("+T("rpBedNights")+")", R.xbNights]); // 13
+    s.push([T("rpShort"), R.shorts]);                    // 14
     s.push([]);
     s.push([T("rpMonthly")]);
     s.push([T("rpMonth"), T("rpNightsCol"), T("rpRooms"), T("rpBreakfast"), T("rpXbed"), T("expenses"), T("result")]);
@@ -1834,9 +2179,9 @@
     else s.push([T("rpNone")]);
 
     // Income (one row per room stay)
-    const inc=[[T("rpCheckIn"), T("rpCheckOut"), T("rpRoom"), T("rpNightsCol"), T("rpPrice"), T("rpAmount")]];
+    const inc=[[T("rpCheckIn"), T("rpCheckOut"), T("rpRoom"), T("rpNightsCol"), T("rpPrice"), T("rpAmount"), T("rpType")]];
     R.stayRows.forEach(x=>inc.push([xd(new Date(x.start)), x.end?xd(new Date(x.end)):T("stillOcc"), T("roomWord")+" "+x.room,
-      x.nights, xm(x.price), xm(x.amount)]));
+      x.nights, xm(x.price), xm(x.amount), x.short?T("rpShort"):T("rpNightType")]));
     const ni=inc.length;
     inc.push([T("rpTotal"), "", "", ni>1?xn("SUM(D2:D"+ni+")",R.nights):0, "", ni>1?xf("SUM(F2:F"+ni+")",R.roomIncome):xm(0)]);
     inc.push([]); inc.push([T("rpNightsNote")]);
@@ -1861,7 +2206,7 @@
 
     const wb=X.utils.book_new();
     X.utils.book_append_sheet(wb, mkSheet(X,s,[30,14,16,16,16,16,16]), T("sheetSummary"));
-    X.utils.book_append_sheet(wb, mkSheet(X,inc,[15,15,12,9,13,14]), T("sheetIncome"));
+    X.utils.book_append_sheet(wb, mkSheet(X,inc,[15,15,12,9,13,14,13]), T("sheetIncome"));
     X.utils.book_append_sheet(wb, mkSheet(X,bf,[15,12,22,8,13,14]), T("sheetBreakfast"));
     X.utils.book_append_sheet(wb, mkSheet(X,xb,[15,15,12,8,9,13,14]), T("sheetXbed"));
     X.utils.book_append_sheet(wb, mkSheet(X,ex,[15,26,34,14]), T("sheetExpenses"));
@@ -2202,7 +2547,9 @@
       b.set(doc(db,"guestIdImg",id), {img:idData.img});
       b.set(doc(db,"guestIds",id), {room, takenAt:now, date:todayStr(), month:monthKey(now), guest});
       await b.commit();
-      const r=state.rooms.find(x=>x.id===room); if(r){ r.ids=(r.ids||0)+1; persist(); }
+      const r=state.rooms.find(x=>x.id===room);
+      if(r){ r.ids=(r.ids||0)+1; saveRoom(r, [], {["rooms."+RK(room)+".ids"]: increment(1)}); render(); }
+      logAct("id", room);
       if(idRoom===room) closeId();
       showToast(T("idSaved"));
     }catch(e){ console.error(e);
@@ -2243,7 +2590,7 @@
     if(del){
       const x=idList.find(i=>i.id===del.dataset.delid); if(!x) return;
       if(!confirm(T("confirmDelId").replace("{room}",T("roomWord")+" "+x.room+(x.guest?" ("+x.guest+")":"")).replace("{date}",fmt(x.date||iso(new Date(x.takenAt)))))) return;
-      try{ const b=writeBatch(db); b.delete(doc(db,"guestIds",x.id)); b.delete(doc(db,"guestIdImg",x.id)); await b.commit(); showToast(T("idDeleted")); }
+      try{ const b=writeBatch(db); b.delete(doc(db,"guestIds",x.id)); b.delete(doc(db,"guestIdImg",x.id)); await b.commit(); showToast(T("idDeleted")); logAct("id_del", x.room); }
       catch(er){ console.error(er); showToast(T("saveFail")); }
       return;
     }
@@ -2278,24 +2625,259 @@
   }
 
   /* ---------------- language toggle ---------------- */
-  document.getElementById("langTog").addEventListener("click",e=>{
-    const b=e.target.closest(".seg"); if(!b) return;
-    lang=b.dataset.lang; ls.set(LANG_KEY,lang); applyStaticText(); render();
+  function onLang(e){ const b=e.target.closest(".seg"); if(!b) return;
+    lang=b.dataset.lang; ls.set(LANG_KEY,lang); applyStaticText(); applyRole(); renderLogin(); render(); }
+  document.getElementById("langTog").addEventListener("click",onLang);
+  document.getElementById("langTog2").addEventListener("click",onLang);
+
+  /* ================= LOGIN =================
+     Everybody signs in with their own name + PIN (a Firebase Email/Password login that the owner makes).
+     board/people = { list: { <uid>: {name, role, active, email, at} } } holds the names for the login screen.
+     The owner login (OWNER_EMAIL) uses the owner's code and is always the owner. */
+  const lockEl=document.getElementById("lock");
+  let authUser=null, authKnown=false, people={}, peopleLoaded=false, peopleErr=false, peopleUnsub=null;
+  let loginPick=null, loginMsg="", justSignedIn=false, ownerEntryTried=false, loginChoicesNow=[];
+  /* hooks for testing against the Firebase emulator — they do nothing on the real board */
+  function prepAuth(a){ return a; }
+  function prepDb(d){ return d; }
+  const roleTxt = r => T("role_"+(r==="owner"||r==="manager"?r:"staff"));
+  const personList = () => Object.entries(people).filter(([uid,p])=>p && p.active && p.name)
+    .map(([uid,p])=>({uid, name:p.name, role:p.role, email:p.email}));
+  function loginChoices(){
+    const list=personList().filter(p=>p.email!==OWNER_EMAIL);
+    const own=Object.entries(people).find(([uid,p])=>p && p.email===OWNER_EMAIL);
+    list.push({uid:own?own[0]:"owner", name:(own&&own[1].name)||OWNER_NAME, role:"owner", email:OWNER_EMAIL});
+    const order={owner:0, manager:1, staff:2};
+    return list.sort((a,b)=>(order[a.role]??3)-(order[b.role]??3) || a.name.localeCompare(b.name));
+  }
+  function renderLogin(){
+    if(me){ lockEl.classList.remove("show"); return; }
+    lockEl.classList.add("show");
+    document.getElementById("lockTitle").textContent=T("lockTitle");
+    const pick=document.getElementById("loginPick"), pin=document.getElementById("loginPin"), err=document.getElementById("lockErr");
+    err.textContent=loginMsg;
+    if(!authKnown || authUser){   // still starting, or signed in and waiting for the names
+      pick.hidden=false; pin.hidden=true; document.getElementById("lockSub").textContent=T("loginLoading");
+      document.getElementById("loginNames").innerHTML=""; return; }
+    if(loginPick){ pick.hidden=true; pin.hidden=false;
+      document.getElementById("loginWho").textContent=loginPick.name;
+      document.getElementById("pinInput").inputMode = loginPick.email===OWNER_EMAIL ? "text" : "numeric"; return; }
+    pick.hidden=false; pin.hidden=true;
+    loginChoicesNow=loginChoices();
+    document.getElementById("lockSub").textContent=T("lockSub");
+    document.getElementById("loginNames").innerHTML=loginChoicesNow.map((p,i)=>
+      '<button data-login="'+i+'"'+(loginChoicesNow.length===1?' class="only"':'')+'>'+esc(p.name)+'</button>').join("");
+    if(!loginMsg && loginChoicesNow.length===1 && (peopleLoaded||peopleErr)) err.textContent=T("loginOwnerOnly").replace("{owner}",loginChoicesNow[0].name);
+  }
+  document.getElementById("loginNames").addEventListener("click",e=>{
+    const b=e.target.closest("[data-login]"); if(!b) return;
+    loginPick=loginChoicesNow[+b.dataset.login]||null; loginMsg=""; arm(); renderLogin();
+    setTimeout(()=>document.getElementById("pinInput").focus(),50);
+  });
+  document.getElementById("loginBack").addEventListener("click",()=>{ loginPick=null; loginMsg="";
+    document.getElementById("pinInput").value=""; renderLogin(); });
+  async function doLogin(){
+    const inp=document.getElementById("pinInput"), btn=document.getElementById("unlockBtn"), err=document.getElementById("lockErr");
+    const code=inp.value.trim(); loginMsg=""; err.textContent="";
+    if(!code || !loginPick){ inp.focus(); return; }
+    if(!auth){ err.textContent=T("loginSetup"); return; }
+    btn.disabled=true; btn.textContent=T("accChecking");
+    try{ justSignedIn=true; await signInWithEmailAndPassword(auth, loginPick.email, code); inp.value=""; }
+    catch(e){ justSignedIn=false; console.error(e); const c=(e&&e.code)||"";
+      err.textContent = c.includes("too-many-requests") ? T("loginTooMany")
+        : c.includes("network") ? T("loginOffline")
+        : (c.includes("operation-not-allowed")||c.includes("configuration-not-found")) ? T("loginSetup")
+        : T("lockWrong");
+      inp.value=""; inp.focus(); }
+    btn.disabled=false; btn.textContent=T("lockBtn");
+  }
+  document.getElementById("unlockBtn").addEventListener("click",doLogin);
+  document.getElementById("pinInput").addEventListener("keydown",e=>{ if(e.key==="Enter") doLogin(); });
+
+  /* who is signed in on this phone? */
+  function resolveMe(){
+    const u=authUser;
+    if(!u){ if(me) stopData(); me=null; applyRole(); renderLogin(); return; }
+    if(u.isAnonymous){ signOut(auth).catch(()=>{}); return; }   // left over from the old version of the board
+    const email=(u.email||"").toLowerCase(); let nm;
+    if(email===OWNER_EMAIL){ const p=people[u.uid]; nm={uid:u.uid, name:(p&&p.name)||OWNER_NAME, role:"owner"}; }
+    else {
+      if(!peopleLoaded && !peopleErr){ renderLogin(); return; }   // wait for the names
+      const p=people[u.uid];
+      if(!p || !p.active){
+        loginMsg = peopleErr ? T("loginSetup") : T("loginDisabled").replace("{owner}",OWNER_NAME);
+        if(me) stopData(); me=null; applyRole(); signOut(auth).catch(()=>{}); renderLogin(); return; }
+      nm={uid:u.uid, name:p.name, role: p.role==="manager" ? "manager" : "staff"};
+    }
+    const changed = !me || me.uid!==nm.uid;
+    me=nm; loginPick=null; loginMsg="";
+    if(changed){ startData(); if(justSignedIn) logAct("in"); }
+    justSignedIn=false;
+    if(me.role==="owner") ensureOwnerEntry();
+    applyRole(); renderLogin(); render();
+  }
+  function watchPeople(){
+    if(peopleUnsub){ try{peopleUnsub();}catch(e){} peopleUnsub=null; }
+    peopleLoaded=false; peopleErr=false;
+    peopleUnsub=onSnapshot(peopleRef, snap=>{
+      if(!snap.exists() && snap.metadata.fromCache) return;   // offline and nothing saved on this phone yet: wait
+      const d=snap.exists()?snap.data():null;
+      people=(d && d.list && typeof d.list==="object") ? d.list : {};
+      peopleLoaded=true; peopleErr=false;
+      resolveMe(); renderLogin(); renderPeople(); renderLog();
+    }, e=>{ console.error("people:",e); peopleErr=true; peopleLoaded=false; resolveMe(); renderLogin(); });
+  }
+  function ensureOwnerEntry(){
+    if(ownerEntryTried || !peopleLoaded || !me || people[me.uid]) return; ownerEntryTried=true;
+    setDoc(peopleRef, {list:{[me.uid]:{name:OWNER_NAME, role:"owner", active:true, email:OWNER_EMAIL, at:Date.now()}}}, {merge:true})
+      .catch(e=>console.error("people:",e));
+  }
+  function applyRole(){
+    isOwner = !!me && me.role==="owner";
+    document.getElementById("tabs").hidden = !isOwner;
+    if(!isOwner && page!=="board") setPage("board");
+    document.getElementById("userLine").hidden = !me;
+    if(me) document.getElementById("userName").textContent="👤 "+me.name+(me.role!=="staff"?" · "+roleTxt(me.role):"");
+    document.getElementById("logoutBtn").textContent=T("logout");
+    if(isOwner && accRef) startAcc(); else stopAcc();
+    renderAccounts();
+  }
+  document.getElementById("logoutBtn").addEventListener("click", async ()=>{
+    if(!me || !confirm(T("confirmLogout").replace("{name}",me.name))) return;
+    try{ await Promise.race([ addDoc(collection(db,"log"), {at:Date.now(), uid:me.uid, name:me.name, act:"out", room:0, d:{}}),
+      new Promise(r=>setTimeout(r,2500)) ]); }catch(e){ console.error(e); }
+    try{ await signOut(auth); }catch(e){ console.error(e); }
   });
 
-  /* ---------------- PIN gate ---------------- */
-  const lockEl=document.getElementById("lock");
-  function tryUnlock(){ const v=document.getElementById("pinInput").value.trim();
-    if(v===PIN){ sessionUnlocked=true; ls.set(LOCK_KEY,"1"); arm(); lockEl.classList.remove("show"); }
-    else{ document.getElementById("lockErr").textContent=T("lockWrong");
-      document.getElementById("pinInput").value=""; document.getElementById("pinInput").focus(); } }
-  document.getElementById("unlockBtn").addEventListener("click",tryUnlock);
-  document.getElementById("pinInput").addEventListener("keydown",e=>{ if(e.key==="Enter")tryUnlock(); });
-  if(isUnlocked()) lockEl.classList.remove("show"); else setTimeout(()=>document.getElementById("pinInput").focus(),60);
+  /* ================= PEOPLE & LOGINS (owner) ================= */
+  function renderPeople(){
+    const box=document.getElementById("peopleBox"); if(!box || !isOwner) return;
+    const list=Object.entries(people).filter(([u,p])=>p && p.name && !p.replaced).map(([uid,p])=>Object.assign({uid},p))
+      .sort((a,b)=>(a.email===OWNER_EMAIL?-1:b.email===OWNER_EMAIL?1:0) || (b.active?1:0)-(a.active?1:0) || a.name.localeCompare(b.name));
+    box.innerHTML = list.map(p=>{
+      if(p.email===OWNER_EMAIL) return '<div class="prow"><div class="pn">'+esc(p.name)+'<small>'+esc(roleTxt("owner"))+'</small></div></div>';
+      return '<div class="prow'+(p.active?'':' off')+'"><div class="pn">'+esc(p.name)+'<small>'+esc(p.active?roleTxt(p.role):T("pOffNote"))+'</small></div>'
+        +(p.active ? '<select data-prole="'+esc(p.uid)+'" aria-label="'+esc(T("lblPRole"))+'">'+["staff","manager"].map(k=>'<option value="'+k+'"'+((p.role==="manager"?"manager":"staff")===k?' selected':'')+'>'+esc(roleTxt(k))+'</option>').join("")+'</select>'
+          +'<button class="btn" data-ppin="'+esc(p.uid)+'">'+esc(T("pinNew"))+'</button>' : '')
+        +'<button class="btn'+(p.active?' ghost-danger':'')+'" data-poff="'+esc(p.uid)+'">'+esc(T(p.active?"pOff":"pOn"))+'</button></div>';
+    }).join("");
+  }
+  /* a new Firebase login, made on a second (hidden) connection so the owner stays signed in */
+  async function makeLogin(pin){
+    const email="u"+Date.now().toString(36)+Math.random().toString(36).slice(2,7)+"@"+LOGIN_DOMAIN;
+    const app2=initializeApp(firebaseConfig, "maker"+Date.now());
+    try{
+      const a2=prepAuth(getAuth(app2)); await setPersistence(a2, inMemoryPersistence);
+      const c=await createUserWithEmailAndPassword(a2, email, pin); const uid=c.user.uid;
+      await signOut(a2); return {uid, email};
+    } finally { deleteApp(app2).catch(()=>{}); }
+  }
+  document.getElementById("pAdd").addEventListener("click", async ()=>{
+    if(!isOwner) return;
+    const err=document.getElementById("pErr"), btn=document.getElementById("pAdd"); err.textContent="";
+    const name=document.getElementById("pName").value.trim().slice(0,30);
+    const role=document.getElementById("pRole").value==="manager"?"manager":"staff";
+    const pin=document.getElementById("pPin").value.trim();
+    if(!name){ err.textContent=T("errPName"); return; }
+    const low=name.toLowerCase();
+    if(loginChoices().some(p=>p.name.toLowerCase()===low)){ err.textContent=T("errPNameUsed"); return; }
+    if(!/^\d{6,10}$/.test(pin)){ err.textContent=T("errPin"); return; }
+    btn.disabled=true;
+    try{
+      const {uid,email}=await makeLogin(pin);
+      await setDoc(peopleRef, {list:{[uid]:{name, role, active:true, email, at:Date.now(), by:me.name}}}, {merge:true});
+      logAct("user_add", 0, {who:name, role}); showToast(T("pAdded").replace("{name}",name));
+      document.getElementById("pName").value=""; document.getElementById("pPin").value="";
+    }catch(e){ console.error(e); err.textContent=T("pFail"); }
+    btn.disabled=false;
+  });
+  document.getElementById("peopleBox").addEventListener("change", e=>{
+    const s=e.target.closest("[data-prole]"); if(!s || !isOwner) return;
+    const uid=s.dataset.prole, p=people[uid]; if(!p) return; const role=s.value==="manager"?"manager":"staff";
+    updateDoc(peopleRef, {["list."+uid+".role"]: role}).then(()=>logAct("user_role",0,{who:p.name, role}))
+      .catch(er=>{ console.error(er); showToast(T("pFail")); });
+  });
+  document.getElementById("peopleBox").addEventListener("click", async e=>{
+    if(!isOwner) return;
+    const pb=e.target.closest("[data-ppin]");
+    if(pb){ const uid=pb.dataset.ppin, p=people[uid]; if(!p) return;
+      const pin=(prompt(T("askNewPin").replace("{name}",p.name))||"").trim(); if(!pin) return;
+      if(!/^\d{6,10}$/.test(pin)){ alert(T("errPin")); return; }
+      pb.disabled=true;
+      try{ const nl=await makeLogin(pin);   // a new login with the new PIN; the old one is turned off
+        await setDoc(peopleRef, {list:{ [nl.uid]:{name:p.name, role:p.role==="manager"?"manager":"staff", active:true, email:nl.email, at:Date.now(), by:me.name},
+          [uid]:{active:false, replaced:true} }}, {merge:true});
+        logAct("user_pin",0,{who:p.name}); showToast(T("pinChanged").replace("{name}",p.name)); }
+      catch(er){ console.error(er); showToast(T("pFail")); }
+      pb.disabled=false; return; }
+    const ob=e.target.closest("[data-poff]");
+    if(ob){ const uid=ob.dataset.poff, p=people[uid]; if(!p) return; const on=!p.active;
+      if(!on && !confirm(T("confirmOff").replace("{name}",p.name))) return;
+      if(on && loginChoices().some(q=>q.name.toLowerCase()===p.name.toLowerCase())){ alert(T("errPNameUsed")); return; }
+      try{ await updateDoc(peopleRef, {["list."+uid+".active"]: on}); logAct(on?"user_on":"user_off",0,{who:p.name}); }
+      catch(er){ console.error(er); showToast(T("pFail")); } }
+  });
+  document.getElementById("myCodeSave").addEventListener("click", async ()=>{
+    const err=document.getElementById("myErr"), o=document.getElementById("myOld"), n=document.getElementById("myNew"); err.textContent="";
+    if(n.value.length<6){ err.textContent=T("myShort"); return; }
+    try{ const u=auth.currentUser;
+      await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, o.value));
+      await updatePassword(u, n.value); o.value=""; n.value=""; showToast(T("myDone")); logAct("code"); }
+    catch(e){ console.error(e); const c=(e&&e.code)||"";
+      err.textContent = (c.includes("wrong-password")||c.includes("invalid-credential")||c.includes("invalid-login")) ? T("myWrong")
+        : c.includes("weak-password") ? T("myShort") : T("pFail"); }
+  });
+
+  /* ================= ACTIVITY LOG (owner) ================= */
+  let logUnsub=null, logLimit=150, logRows=[], logErr=false, logWho="";
+  function watchLog(){
+    if(!isOwner || !db || logUnsub) return;
+    logUnsub=onSnapshot(query(collection(db,"log"), orderBy("at","desc"), limit(logLimit)), snap=>{
+      logRows=snap.docs.map(d=>Object.assign({id:d.id}, d.data())); logErr=false; renderLog();
+    }, e=>{ console.error("log:",e); logErr=true; logUnsub=null; renderLog(); });
+  }
+  function stopLog(){ if(logUnsub){ try{logUnsub();}catch(e){} logUnsub=null; } logRows=[]; logErr=false; }
+  function logText(x){
+    const d=x.d||{}, k="lg_"+x.act; if(STR.en[k]===undefined) return x.act||"";
+    const room = x.room ? T("roomWord")+" "+x.room : "";
+    const dates = d.date ? (d.until ? bkRange({date:d.date, until:d.until}) : fmt(d.date)) : "";
+    const sets = d.sets ? (Object.keys(d.sets).length ? Object.keys(d.sets).map(n=>d.sets[n]+" × "+T("bfSetShort").replace("{n}",n)).join(", ") : T("lgNone")) : "";
+    return T(k).replace("{room}",room).replace("{dates}",dates).replace("{date}",d.date?fmt(d.date):"")
+      .replace("{guest}",d.guest?" · "+d.guest:"").replace("{sets}",sets).replace("{n}",d.n!=null?d.n:"")
+      .replace("{what}",d.what||"").replace("{v}",d.v!=null?d.v:"").replace("{cat}",d.cat?T("cat_"+d.cat):"")
+      .replace("{amt}",d.amt!=null?baht(+d.amt):"").replace("{who}",d.who||"").replace("{role}",d.role?roleTxt(d.role):"");
+  }
+  function fillLogWho(){
+    const sel=document.getElementById("logWho"); if(!sel) return;
+    const names=[]; const add=n=>{ if(n && !names.includes(n)) names.push(n); };
+    Object.values(people).forEach(p=>p && add(p.name)); logRows.forEach(x=>add(x.name));
+    const html='<option value="">'+esc(T("logAll"))+'</option>'+names.sort((a,b)=>a.localeCompare(b)).map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join("");
+    if(sel.dataset.h!==html){ sel.innerHTML=html; sel.dataset.h=html; }
+    sel.value=logWho;
+  }
+  function renderLog(){
+    const box=document.getElementById("logBox"); if(!box || !isOwner || page!=="accounts") return;
+    fillLogWho();
+    const more=document.getElementById("logMore");
+    if(logErr){ box.innerHTML='<div class="empty">'+esc(T("logFail"))+'</div>'; more.hidden=true; return; }
+    const rows=logRows.filter(x=>!logWho || x.name===logWho);
+    more.hidden = logRows.length<logLimit;
+    if(!rows.length){ box.innerHTML='<div class="empty">'+esc(T("logNone"))+'</div>'; return; }
+    let h="", day="";
+    rows.forEach(x=>{ const d=new Date(x.at||0), dk=iso(d);
+      if(dk!==day){ day=dk; h+='<div class="lday">'+esc(d.toLocaleDateString(LOC(),{weekday:"short",day:"numeric",month:"short",year:"numeric"}))+'</div>'; }
+      const red=/del$|^clear$|^user_off$/.test(x.act||"");
+      h+='<div class="lrow'+(red?' del':'')+'"><span class="lt">'+esc(d.toLocaleTimeString(lang==="th"?"th-TH":"en-GB",{hour:"2-digit",minute:"2-digit"}))+'</span>'
+        +'<span><span class="lw">'+esc(x.name||"?")+'</span> <span class="lx">'+esc(logText(x))+'</span></span></div>'; });
+    box.innerHTML=h;
+  }
+  document.getElementById("logWho").addEventListener("change",e=>{ logWho=e.target.value; renderLog(); });
+  document.getElementById("logMore").addEventListener("click",()=>{ logLimit+=150; if(logUnsub){ try{logUnsub();}catch(e){} logUnsub=null; } watchLog(); });
 
   /* ---------------- 8 PM reminder + midnight roll ---------------- */
   let reminderDate = ls.get(REM_KEY);
   function reminderCheck(){
+    if(!me) return;
     const now=new Date(); const t=todayStr();
     if(now.getHours()>=20 && reminderDate!==t){
       reminderDate=t; ls.set(REM_KEY,t);
@@ -2307,10 +2889,9 @@
   let lastDay=todayStr();
   setInterval(()=>{
     const t=todayStr();
-    if(t!==lastDay){ lastDay=t; const ch=purgePast();
-      state.rooms.forEach(r=>prevView[r.id]=viewStatus(r)); // silent recompute at midnight
-      if(ready&&ch) persist(); else render(); }
-    // 1-hour check: count rooms that have now been occupied long enough, refresh countdowns
+    // midnight: bookings that are over drop off the board by themselves — nothing is saved, so nothing can be lost
+    if(t!==lastDay){ lastDay=t; if(liveLoaded && bkLoaded){ firstSnap=true; rebuild(); } else render(); }
+    // check window: count rooms that have now been occupied long enough, refresh countdowns
     const counted = confirmStays();
     if(!holdFace && (counted || state.rooms.some(inGrace) || document.getElementById("pending").hidden===false)) render();
     reminderCheck();
@@ -2320,49 +2901,72 @@
   /* ---------------- start ---------------- */
   applyStaticText(); render(); setPage(page);
 
-  function startFirestore(){
-    ref=doc(db,"board","main");
-    onSnapshot(ref, snap=>{
-      const pending = snap.metadata && snap.metadata.hasPendingWrites;
-      if(snap.exists()){
-        const data=snap.data();
-        if(data && Array.isArray(data.rooms) && data.rooms.length===ROOM_COUNT){
-          state={rooms:data.rooms};
-          const allow = !firstSnap && !pending;
-          const changed=[];
-          state.rooms.forEach(r=>{ const vs=viewStatus(r); const prev=prevView[r.id];
-            if(allow && prev!==undefined && prev!==vs) changed.push({id:r.id,vs}); prevView[r.id]=vs; });
-          if(changed.length>2){ playFree(); showToast(T("boardUpdated")); }
-          else changed.forEach(c=>{ playSound(c.vs); notify(T("notifStatus"), T("roomWord")+" "+c.id+" → "+T(c.vs), "room"+c.id); });
-          // breakfast ordered/changed on another device -> sound + message (for the kitchen)
-          const bfCh=[];
-          state.rooms.forEach(r=>{ const sg=bfSig(r); if(allow && prevBf[r.id]!==undefined && prevBf[r.id]!==sg) bfCh.push(r.id); prevBf[r.id]=sg; });
-          if(bfCh.length){ if(!changed.length) playFree(); notify(T("bfUpdated"), bfCh.map(id=>T("roomWord")+" "+id).join(", "), "bf"); }
-          firstSnap=false; ready=true;
-          const a=purgePast(), b=reconcile();
-          if(a||b) persist(); else { render(); setSync("ok","syncOk"); }
-          return;
+  function syncState(m){
+    pendingLocal=m.hasPendingWrites;
+    if(m.hasPendingWrites) setSync(navigator.onLine?"wait":"off", navigator.onLine?"syncSaving":"syncOfflineSave");
+    else if(m.fromCache) setSync("off","syncOffline");
+    else setSync("ok","syncOk");
+  }
+  /* first start of this version: build board/live from the old board (rooms, breakfast, extra beds, bookings).
+     Runs only with a live connection and in a transaction, so it happens exactly once. */
+  async function ensureLive(){
+    if(migrating || !me || !liveRef) return; migrating=true;
+    try{
+      await runTransaction(db, async tx=>{
+        const s=await tx.get(liveRef); if(s.exists()) return;
+        const old=await tx.get(mainRef);
+        const od=old.exists()?(old.data()||{}):{};
+        const oldRooms=Array.isArray(od.rooms)?od.rooms:[];
+        const rooms={}, now=Date.now();
+        for(let i=1;i<=ROOM_COUNT;i++){
+          const o=oldRooms.find(x=>x && +x.id===i)||{}; const r={status:o.status==="occupied"?"occupied":"free"};
+          if(r.status==="occupied"){ if(o.occSince) r.occSince=o.occSince; if(o.stayId) r.stayId=o.stayId; if(o.xbed && o.xbed.n>0) r.xbed=o.xbed; }
+          if(o.ids>0) r.ids=o.ids;
+          const bf={}; (o.breakfast||[]).forEach(b=>{ if(b && +b.qty>0 && typeof b.date==="string") bf[bfId(i,b.date,+b.set)]={date:b.date, set:+b.set, qty:+b.qty}; });
+          if(Object.keys(bf).length) r.bf=bf;
+          rooms[RK(i)]=r;
+          (o.bookings||[]).forEach((b,j)=>{ if(!b || typeof b.date!=="string") return;
+            const id=/^[A-Za-z0-9_-]{3,60}$/.test(String(b.id||"")) ? String(b.id) : "b"+now+"r"+i+"n"+j;
+            tx.set(doc(db,"bookings",id), {room:i, date:b.date, until:bkUntil(b), guest:String(b.guest||""), by:me.uid, byName:me.name, at:now}); });
         }
-      }
-      ready=true; state=defaultState(); persist(); // seed fresh database
-    }, err=>{ console.error(err); setSync("off","syncOffline"); render(); });
-
-    // statistics document (separate from the board so the board's full-document saves never touch it)
-    statsRef=doc(db,"board","stats");
-    onSnapshot(statsRef, snap=>{
+        tx.set(liveRef, {rooms, createdAt:now, createdBy:me.name, from: old.exists() ? "board/main" : "new"});
+      });
+    }catch(e){ console.error("setup:",e); setSync("off","syncSaveFail"); }
+    migrating=false;
+  }
+  function startData(){
+    stopData();
+    liveRef=doc(db,"board","live"); mainRef=doc(db,"board","main");
+    statsRef=doc(db,"board","stats"); accRef=doc(db,"board","accounts");
+    setSync("wait","syncConnecting");
+    unsubs.push(onSnapshot(liveRef, {includeMetadataChanges:true}, snap=>{
+      const m=snap.metadata;
+      if(!snap.exists()){ if(!m.fromCache) ensureLive(); else setSync("wait","syncConnecting"); return; }
+      liveData=snap.data(); liveLoaded=true; syncState(m); rebuild();
+    }, err=>{ console.error("live:",err); setSync("off", String((err&&err.code)||"").includes("permission") ? "syncAuthFail" : "syncOffline"); }));
+    unsubs.push(onSnapshot(query(collection(db,"bookings"), where("until",">=",addDays(todayStr(),-40))), snap=>{
+      const o={}; snap.forEach(d=>{ o[d.id]=d.data(); }); bkRecs=o; bkLoaded=true; rebuild();
+    }, err=>console.error("bookings:",err)));
+    // statistics document (separate from the board)
+    unsubs.push(onSnapshot(statsRef, snap=>{
       const data = snap.exists() ? snap.data() : null;
       stays = (data && data.stays && typeof data.stays==="object") ? data.stays : {};
       statsSettings = (data && data.settings && typeof data.settings==="object") ? data.settings : {};
       bfRecs = (data && data.breakfasts && typeof data.breakfasts==="object") ? data.breakfasts : {};
       xbRecs = (data && data.xbeds && typeof data.xbeds==="object") ? data.xbeds : {};
       statsReady=true;
-      if(reconcile()) persist(); else renderStats();
-    }, err=>{ console.error("stats:",err); });
-
-    accRef=doc(db,"board","accounts");
+      reconcile(); renderStats();
+    }, err=>{ console.error("stats:",err); }));
+  }
+  function stopData(){
+    unsubs.forEach(u=>{ try{u();}catch(e){} }); unsubs=[];
+    stopAcc(); stopLog();
+    liveRef=null; statsRef=null; ready=false; firstSnap=true; liveLoaded=false; bkLoaded=false; liveData=null; bkRecs={};
+    statsReady=false; stays={}; bfRecs={}; xbRecs={}; prevView={}; prevBf={};
+    state=defaultState(); render();
   }
 
-  /* accounts document: only the owner login may read it (enforced by Firestore rules) */
+  /* accounts document: only the owner may read it (enforced by Firestore rules) */
   function startAcc(){
     if(accUnsub || !accRef) return;
     accUnsub = onSnapshot(accRef, snap=>{
@@ -2373,31 +2977,11 @@
     }, err=>{ console.error("accounts:",err); accUnsub=null; });
     if(!idCleaned){ idCleaned=true; cleanupIds(); }
   }
-  function stopAcc(){ stopIds(); if(accUnsub){ try{accUnsub();}catch(e){} accUnsub=null; }
+  function stopAcc(){ stopIds(); stopLog(); if(accUnsub){ try{accUnsub();}catch(e){} accUnsub=null; }
     accData={settings:{},expenses:{}}; accReady=false; }
 
-  async function accUnlock(){
-    const inp=document.getElementById("accCode"), err=document.getElementById("accLockErr"), btn=document.getElementById("accUnlock");
-    const code=inp.value; err.textContent=""; if(!code) { inp.focus(); return; }
-    if(!auth){ err.textContent=T("accNotSetup"); return; }
-    btn.disabled=true; btn.textContent=T("accChecking");
-    try{ await signInWithEmailAndPassword(auth, OWNER_EMAIL, code); inp.value=""; }
-    catch(e){ console.error(e); const c=(e&&e.code)||"";
-      err.textContent = c.includes("too-many-requests") ? T("accTooMany")
-        : c.includes("network") ? T("accOffline")
-        : (c.includes("operation-not-allowed")||c.includes("configuration-not-found")) ? T("accNotSetup")
-        : T("accWrong");
-      inp.value=""; inp.focus(); }
-    btn.disabled=false; btn.textContent=T("accUnlock");
-  }
-  document.getElementById("accUnlock").addEventListener("click",accUnlock);
-  document.getElementById("accCode").addEventListener("keydown",e=>{ if(e.key==="Enter") accUnlock(); });
-  document.getElementById("accLockBtn").addEventListener("click",async ()=>{
-    if(!confirm(T("confirmLock"))) return;
-    stopAcc(); isOwner=false; renderAccounts();
-    try{ await signOut(auth); }catch(e){ console.error(e); }   // board signs back in anonymously
-    showToast(T("accLocked"));
-  });
+  window.addEventListener("online",()=>{ if(pendingLocal) setSync("wait","syncSaving"); });
+  window.addEventListener("offline",()=>{ if(me) setSync("off", pendingLocal ? "syncOfflineSave" : "syncOffline"); });
 
   if(!configured){
     document.getElementById("configBanner").classList.add("show");
@@ -2405,19 +2989,22 @@
   } else {
     try{
       const app=initializeApp(firebaseConfig);
-      db=getFirestore(app);
-      auth=getAuth(app);
+      // keep the board (and any change not yet sent) on the phone, so it survives no signal and closing the app
+      try{ db=initializeFirestore(app, {localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})}); }
+      catch(e){ console.error(e); db=getFirestore(app); }
+      db=prepDb(db);
+      auth=prepAuth(getAuth(app));
+      peopleRef=doc(db,"board","people");
       setSync("wait","syncSignin");
+      watchPeople();
       onAuthStateChanged(auth, user=>{
-        if(!user){ isOwner=false; stopAcc(); renderAccounts();
-          signInAnonymously(auth).catch(e=>{ console.error(e); setSync("off","syncAuthFail"); }); return; }
-        isOwner = !user.isAnonymous && (user.email||"").toLowerCase()===OWNER_EMAIL;
-        if(!fsStarted){ fsStarted=true; startFirestore(); }
-        if(isOwner) startAcc(); else stopAcc();
-        renderAccounts();
+        const prevUid=authUser && authUser.uid; authKnown=true; authUser=user;
+        if((user && user.uid)!==prevUid){ ownerEntryTried=false; watchPeople(); }   // read the names again with the new login
+        resolveMe();
       });
     }catch(e){ console.error(e); setSync("off","syncConfigError"); }
   }
+  renderLogin();
 </script>
 <script>
   if ('serviceWorker' in navigator) {
